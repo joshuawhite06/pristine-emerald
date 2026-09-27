@@ -1,0 +1,98 @@
+"""Emerald-specific helpers on top of emu.Session."""
+
+import hashlib
+import struct
+from pathlib import Path
+
+from . import gen3, paths, savefile
+from .emu import Session, Watch
+
+CB2_OFFSET = 4  # gMain.callback2
+
+
+def _digest(*parts):
+    h = hashlib.sha1()
+    for p in parts:
+        h.update(p if isinstance(p, (bytes, bytearray)) else Path(p).read_bytes())
+    return h.hexdigest()[:16]
+
+
+class Emerald(Session):
+    # --- screens ---------------------------------------------------------
+
+    def callback2(self):
+        return self.u32(self.syms.addr("gMain") + CB2_OFFSET)
+
+    def cb2_is(self, func_name):
+        return Watch.equals(self.syms.addr("gMain") + CB2_OFFSET, 4, self.syms.func(func_name), f"gMain.callback2 == {func_name}")
+
+    def in_overworld(self):
+        return self.callback2() == self.syms.func("CB2_Overworld")
+
+    def boot_to_overworld(self):
+        """Power on with the session's battery save and CONTINUE into the game.
+
+        Presses START through the intro and title until the main menu, then A
+        once, then waits (without input) for the overworld plus a settle
+        period for the fade-in.
+        """
+        self.wait_for(self.cb2_is("CB2_MainMenu"), max_frames=3000, chunk=40, press="START")
+        # Let the menu's fade-in finish before choosing CONTINUE.
+        self.run(40)
+        self.wait_for(self.cb2_is("CB2_ContinueSavedGame"), max_frames=600, chunk=40, press="A")
+        self.run_until(self.cb2_is("CB2_Overworld"), 600)
+        self.run(60)
+
+    @classmethod
+    def from_save(cls, fixture, name=None, rom=None, sym=None, cache=True):
+        """A session standing in the overworld where `fixture` (a .sav) was saved.
+
+        The booted state is cached per (ROM, save) so repeated tests skip the
+        boot. Savestates are only valid for the exact ROM they were made on;
+        in-game saves are the portable fixture format.
+        """
+        fixture = Path(fixture)
+        sav = fixture.read_bytes()
+        rom_path = Path(rom or paths.rom())
+        cache_dir = paths.test_out().parent / "test-cache"
+        key = _digest(rom_path, sav, paths.harness(), paths.rtc().encode())
+        cached = cache_dir / f"{fixture.stem}-{key}.state"
+        cached_sav = cached.with_suffix(".sav")
+        if cache and cached.exists() and cached_sav.exists():
+            return cls(name or fixture.stem, rom=rom, sym=sym, sav=cached_sav, state=cached)
+        s = cls(name or fixture.stem, rom=rom, sym=sym, sav=sav)
+        s.boot_to_overworld()
+        if cache:
+            cache_dir.mkdir(parents=True, exist_ok=True)
+            cached_sav.write_bytes(s.battery())
+            s.save_state(cached)
+        return s
+
+    # --- live game data (RAM) ---------------------------------------------
+
+    def party(self):
+        count = self.sym("gPlayerPartyCount")[0]
+        return gen3.decode_party(self.sym("gPlayerParty"), count)
+
+    def set_party_mon(self, index, mon):
+        self.write(self.syms.addr("gPlayerParty") + index * gen3.MON_SIZE, mon.encode())
+
+    def sb1_addr(self):
+        return self.u32(self.syms.addr("gSaveBlock1Ptr"))
+
+    def sb2_addr(self):
+        return self.u32(self.syms.addr("gSaveBlock2Ptr"))
+
+    def flag(self, flag_id):
+        byte = self.u8(self.sb1_addr() + savefile.SB1_FLAGS + flag_id // 8)
+        return bool(byte & (1 << (flag_id % 8)))
+
+    def var(self, var_id):
+        return self.u16(self.sb1_addr() + savefile.SB1_VARS + 2 * (var_id - savefile.VARS_START))
+
+    def location(self):
+        """(mapGroup, mapNum, x, y) of the player right now."""
+        sb1 = self.sb1_addr()
+        x, y = struct.unpack("<hh", self.read(sb1 + savefile.SB1_POS, 4))
+        group, num = struct.unpack("<bb", self.read(sb1 + savefile.SB1_LOCATION, 2))
+        return group, num, x, y
