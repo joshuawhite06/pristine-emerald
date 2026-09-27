@@ -593,11 +593,31 @@ Rival: Treecko
 Gift: Torchic
 ```
 
-Suggested level:
+~~Suggested level: Level 5~~
+
+### Decision (2026-09-27): given when you talk to the rival, level 13
+
+The Rustboro battle is optional in vanilla (the rival asks YES/NO, and you can
+lose). The gift doesn't depend on it: when you talk to May/Brendan in
+Rustboro, right after the Match Call registration, they give the starter,
+then ask to battle.
 
 ```text
-Level 5
+MAY: Oh, that's right! Before I forget…
+     My dad asked me to give you this POKéMON.
+     He wants you to raise it for your POKéDEX research!
+LIAM received TORCHIC!
+Nickname prompt (standard)
+MAY: ...want to battle?                         (vanilla)
 ```
+
+- Level 13.
+- FLAG_RECEIVED_RUSTBORO_STARTER (vanilla's unused flag 0x21), so it's given once.
+- Saves from vanilla that already met or beat the rival get it the next time
+  they talk to them in Rustboro.
+- Full party: sent to the PC (standard message). Party and PC full: "no more
+  room", flag stays clear, try again later.
+- Status: implemented; `test/cases/test_starters.py`.
 
 ## Third starter
 

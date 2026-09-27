@@ -44,7 +44,7 @@
 #define NUM_TEMP_FLAGS   (TEMP_FLAGS_END - TEMP_FLAGS_START + 1)
 
 #define FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH 0x20 // pristine-emerald (unused in vanilla)
-#define FLAG_UNUSED_0x021    0x21 // Unused Flag
+#define FLAG_RECEIVED_RUSTBORO_STARTER 0x21 // pristine-emerald (unused in vanilla)
 #define FLAG_UNUSED_0x022    0x22 // Unused Flag
 #define FLAG_UNUSED_0x023    0x23 // Unused Flag
 #define FLAG_UNUSED_0x024    0x24 // Unused Flag
