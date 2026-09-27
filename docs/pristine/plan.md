@@ -904,6 +904,29 @@ Going back to vanilla should also remain possible whenever the modified save con
 
 ---
 
+# 13b. TM Machine (added 2026-09-27)
+
+After the Elite Four, PROF. BIRCH calls about his new computer program, the
+TM MACHINE; from then on every Pokémon Center PC's top menu has a TM MACHINE
+entry (not inside POKéMON SERVICES).
+
+- The call: a PokéNav call 50 steps after the Elite Four, on an outdoor step,
+  never while Scott's Battle Frontier call is still due (Scott goes first).
+  Saves cleared before the hack get it the same way. The step count is RAM
+  only (restarts if the game is turned off before the call); the call sets
+  FLAG_RECEIVED_TM_MACHINE_CALL (vanilla's unused flag 0x23).
+- The machine: a scrolling list of all 50 TMs ("TM26 EARTHQUAKE"); choosing
+  one gives a copy (standard "Obtained" message, bag-full handling), then the
+  list reopens where the cursor was; pick as many as you like. HMs aren't
+  included.
+- PC menu rows now depend on progress (TM MACHINE after the call, HALL OF
+  FAME after the Elite Four); GetPCMenuAction maps the row to an action.
+
+Code: `src/tm_machine.c`, `data/scripts/tm_machine.inc`, `src/script_menu.c`,
+`src/field_specials.c`. Tests: `test/cases/test_tm_machine.py`.
+
+---
+
 # 14. Out of Scope
 
 Do not add:

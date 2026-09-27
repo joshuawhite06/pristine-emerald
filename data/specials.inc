@@ -551,6 +551,9 @@ gSpecials::
 	def_special ToggleSelectedMonShiny
 	def_special EnableMoveReminderAllMoves
 	def_special DisableMoveReminderAllMoves
+	@ pristine-emerald: PC menu actions and the TM Machine (src/script_menu.c, src/tm_machine.c)
+	def_special GetPCMenuAction
+	def_special ResetTmMachineCursor
 	@ pristine-emerald: trade-back scientist (src/tradeback.c)
 	def_special CheckSelectedMonTradeEvolution
 	def_special DoSelectedMonTradeEvolution

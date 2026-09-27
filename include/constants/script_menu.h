@@ -10,6 +10,15 @@
 // Multichoice Ids
 #define MULTI_BRINEY_ON_DEWFORD            0
 #define MULTI_PC                           1 // Exit only, populated by CreatePCMultichoice
+
+// pristine-emerald: what a PC menu row does (GetPCMenuAction).
+#define PC_ACTION_STORAGE      0
+#define PC_ACTION_PLAYERS_PC   1
+#define PC_ACTION_SERVICES     2
+#define PC_ACTION_TM_MACHINE   3
+#define PC_ACTION_HALL_OF_FAME 4
+#define PC_ACTION_LOG_OFF      5
+#define PC_ACTION_COUNT        6
 #define MULTI_ENTERINFO                    2
 #define MULTI_CONTEST_INFO                 3
 #define MULTI_CONTEST_TYPE                 4

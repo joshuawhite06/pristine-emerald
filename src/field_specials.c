@@ -67,6 +67,7 @@
 #include "constants/weather.h"
 #include "constants/metatile_labels.h"
 #include "palette.h"
+#include "tm_machine.h"
 
 #define TAG_ITEM_ICON 5500
 
@@ -2392,6 +2393,24 @@ void ShowScrollableMultichoice(void)
         task->tKeepOpenAfterSelect = FALSE;
         task->tTaskId = taskId;
         break;
+    case SCROLL_MULTI_TM_MACHINE:
+    {
+        u16 scrollOffset, row;
+
+        task->tMaxItemsOnScreen = MAX_SCROLL_MULTI_ON_SCREEN;
+        task->tNumItems = NUM_TECHNICAL_MACHINES + 1;
+        task->tLeft = 1;
+        task->tTop = 1;
+        task->tWidth = 14;
+        task->tHeight = 12;
+        task->tKeepOpenAfterSelect = FALSE;
+        task->tTaskId = taskId;
+        // Reopen where the player left off (the list closes after each pick).
+        TmMachine_GetCursor(&scrollOffset, &row);
+        task->tScrollOffset = scrollOffset;
+        task->tSelectedRow = row;
+        break;
+    }
     case SCROLL_MULTI_NATURES:
         task->tMaxItemsOnScreen = MAX_SCROLL_MULTI_ON_SCREEN;
         task->tNumItems = NUM_NATURES + 1;
@@ -2575,7 +2594,11 @@ static const u8 *const sScrollableMultichoiceOptions[][MAX_SCROLL_MULTI_LENGTH] 
         gText_ServiceTradeEvolution,
         gText_Cancel
     },
+    [SCROLL_MULTI_TM_MACHINE] = {gText_Cancel}, // filled at runtime (tm_machine.c)
 };
+
+// pristine-emerald: the TM Machine's row texts while its list is open.
+static EWRAM_DATA u8 *sTmMachineNames = NULL;
 
 static void Task_ShowScrollableMultichoice(u8 taskId)
 {
@@ -2593,12 +2616,18 @@ static void Task_ShowScrollableMultichoice(u8 taskId)
     sFrontierExchangeCorner_NeverRead = 0;
     InitScrollableMultichoice();
 
+    // pristine-emerald: the TM Machine's rows are built at runtime.
+    if (gSpecialVar_0x8004 == SCROLL_MULTI_TM_MACHINE)
+        sTmMachineNames = TmMachine_AllocNames();
+
     for (width = 0, i = 0; i < task->tNumItems; i++)
     {
         const u8 *text;
 
         // pristine-emerald: the nature list uses the game's nature names.
-        if (gSpecialVar_0x8004 == SCROLL_MULTI_NATURES)
+        if (gSpecialVar_0x8004 == SCROLL_MULTI_TM_MACHINE)
+            text = TmMachine_ListText(sTmMachineNames, i);
+        else if (gSpecialVar_0x8004 == SCROLL_MULTI_NATURES)
             text = i < NUM_NATURES ? gNatureNamePointers[i] : gText_Cancel;
         else
             text = sScrollableMultichoiceOptions[gSpecialVar_0x8004][i];
@@ -2666,6 +2695,13 @@ static void ScrollableMultichoice_MoveCursor(s32 itemIndex, bool8 onInit, struct
         struct Task *task = &gTasks[taskId];
         ListMenuGetScrollAndRow(task->tListTaskId, &selection, NULL);
         sScrollableMultichoice_ScrollOffset = selection;
+        if (task->tScrollMultiId == SCROLL_MULTI_TM_MACHINE)
+        {
+            u16 scrollOffset, row;
+
+            ListMenuGetScrollAndRow(task->tListTaskId, &scrollOffset, &row);
+            TmMachine_SaveCursor(scrollOffset, row);
+        }
         ListMenuGetCurrentItemArrayId(task->tListTaskId, &selection);
         HideFrontierExchangeCornerItemIcon(task->tScrollMultiId, sFrontierExchangeCorner_NeverRead);
         FillFrontierExchangeCornerWindowAndItemIcon(task->tScrollMultiId, selection);
@@ -2720,6 +2756,8 @@ static void CloseScrollableMultichoice(u8 taskId)
     ScrollableMultichoice_RemoveScrollArrows(taskId);
     DestroyListMenuTask(task->tListTaskId, NULL, NULL);
     Free(sScrollableMultichoice_ListMenuItem);
+    if (task->tScrollMultiId == SCROLL_MULTI_TM_MACHINE)
+        TRY_FREE_AND_SET_NULL(sTmMachineNames);
     ClearStdWindowAndFrameToTransparent(task->tWindowId, TRUE);
     FillWindowPixelBuffer(task->tWindowId, PIXEL_FILL(0));
     CopyWindowToVram(task->tWindowId, COPYWIN_GFX);

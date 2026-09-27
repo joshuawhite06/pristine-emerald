@@ -42,6 +42,7 @@
 #define SCROLL_MULTI_BATTLE_TENT_RULES                    12
 #define SCROLL_MULTI_NATURES                              13 // pristine-emerald: 25 natures + CANCEL, filled at runtime
 #define SCROLL_MULTI_POKEMON_SERVICES                     14 // pristine-emerald: the PC's POKéMON SERVICES
+#define SCROLL_MULTI_TM_MACHINE                           15 // pristine-emerald: 50 TMs + CANCEL, filled at runtime
 
 #define MAX_SCROLL_MULTI_ON_SCREEN 6
 #define MAX_SCROLL_MULTI_LENGTH 16

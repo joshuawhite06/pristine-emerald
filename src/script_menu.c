@@ -325,61 +325,87 @@ bool16 ScriptMenu_CreatePCMultichoice(void)
     }
 }
 
-// pristine-emerald: POKéMON SERVICES is the third entry, after the two PCs
-// (data/scripts/pc.inc matches this order).
+// pristine-emerald: the PC menu's entries depend on progress, so it records
+// what it drew and GetPCMenuAction (data/scripts/pc.inc) turns the chosen
+// row into a PC_ACTION_*. Rows: SOMEONE'S/LANETTE'S PC, <PLAYER>'s PC,
+// POKéMON SERVICES, TM MACHINE (after Birch's call), HALL OF FAME (after the
+// Elite Four), LOG OFF.
 static const u8 sText_PokemonServices[] = _("POKéMON SERVICES");
+static const u8 sText_TmMachine[] = _("TM MACHINE");
+static EWRAM_DATA u8 sPCMenuActions[PC_ACTION_COUNT] = {0};
+static EWRAM_DATA u8 sPCMenuNumActions = 0;
 
 static void CreatePCMultichoice(void)
 {
     u8 x = 8;
     u32 pixelWidth = 0;
     u8 width;
-    u8 numChoices;
     u8 windowId;
     int i;
 
-    for (i = 0; i < ARRAY_COUNT(sPCNameStrings); i++)
-    {
-        pixelWidth = DisplayTextAndGetWidth(sPCNameStrings[i], pixelWidth);
-    }
-    pixelWidth = DisplayTextAndGetWidth(sText_PokemonServices, pixelWidth);
-
+    sPCMenuNumActions = 0;
+    sPCMenuActions[sPCMenuNumActions++] = PC_ACTION_STORAGE;
+    sPCMenuActions[sPCMenuNumActions++] = PC_ACTION_PLAYERS_PC;
+    sPCMenuActions[sPCMenuNumActions++] = PC_ACTION_SERVICES;
+    if (FlagGet(FLAG_RECEIVED_TM_MACHINE_CALL))
+        sPCMenuActions[sPCMenuNumActions++] = PC_ACTION_TM_MACHINE;
     if (FlagGet(FLAG_SYS_GAME_CLEAR))
-    {
-        pixelWidth = DisplayTextAndGetWidth(gText_HallOfFame, pixelWidth);
-    }
+        sPCMenuActions[sPCMenuNumActions++] = PC_ACTION_HALL_OF_FAME;
+    sPCMenuActions[sPCMenuNumActions++] = PC_ACTION_LOG_OFF;
 
+    for (i = 0; i < ARRAY_COUNT(sPCNameStrings); i++)
+        pixelWidth = DisplayTextAndGetWidth(sPCNameStrings[i], pixelWidth);
+    pixelWidth = DisplayTextAndGetWidth(sText_PokemonServices, pixelWidth);
+    pixelWidth = DisplayTextAndGetWidth(sText_TmMachine, pixelWidth);
+    pixelWidth = DisplayTextAndGetWidth(gText_HallOfFame, pixelWidth);
     width = ConvertPixelWidthToTileWidth(pixelWidth);
 
-    // Include Hall of Fame option if player is champion
-    if (FlagGet(FLAG_SYS_GAME_CLEAR))
+    windowId = CreateWindowFromRect(0, 0, width, sPCMenuNumActions * 2);
+    SetStandardWindowBorderStyle(windowId, FALSE);
+    for (i = 0; i < sPCMenuNumActions; i++)
     {
-        numChoices = 5;
-        windowId = CreateWindowFromRect(0, 0, width, 10);
-        SetStandardWindowBorderStyle(windowId, FALSE);
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_HallOfFame, x, 49, TEXT_SKIP_DRAW, NULL);
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, 65, TEXT_SKIP_DRAW, NULL);
-    }
-    else
-    {
-        numChoices = 4;
-        windowId = CreateWindowFromRect(0, 0, width, 8);
-        SetStandardWindowBorderStyle(windowId, FALSE);
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, 49, TEXT_SKIP_DRAW, NULL);
-    }
-    AddTextPrinterParameterized(windowId, FONT_NORMAL, sText_PokemonServices, x, 33, TEXT_SKIP_DRAW, NULL);
+        u8 y = 1 + i * 16;
 
-    // Change PC name if player has met Lanette
-    if (FlagGet(FLAG_SYS_PC_LANETTE))
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LanettesPC, x, 1, TEXT_SKIP_DRAW, NULL);
-    else
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_SomeonesPC, x, 1, TEXT_SKIP_DRAW, NULL);
-
-    StringExpandPlaceholders(gStringVar4, gText_PlayersPC);
-    PrintPlayerNameOnWindow(windowId, gStringVar4, x, 17);
-    InitMenuInUpperLeftCornerNormal(windowId, numChoices, 0);
+        switch (sPCMenuActions[i])
+        {
+        case PC_ACTION_STORAGE:
+            // Change PC name if player has met Lanette
+            if (FlagGet(FLAG_SYS_PC_LANETTE))
+                AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LanettesPC, x, y, TEXT_SKIP_DRAW, NULL);
+            else
+                AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_SomeonesPC, x, y, TEXT_SKIP_DRAW, NULL);
+            break;
+        case PC_ACTION_PLAYERS_PC:
+            StringExpandPlaceholders(gStringVar4, gText_PlayersPC);
+            PrintPlayerNameOnWindow(windowId, gStringVar4, x, y);
+            break;
+        case PC_ACTION_SERVICES:
+            AddTextPrinterParameterized(windowId, FONT_NORMAL, sText_PokemonServices, x, y, TEXT_SKIP_DRAW, NULL);
+            break;
+        case PC_ACTION_TM_MACHINE:
+            AddTextPrinterParameterized(windowId, FONT_NORMAL, sText_TmMachine, x, y, TEXT_SKIP_DRAW, NULL);
+            break;
+        case PC_ACTION_HALL_OF_FAME:
+            AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_HallOfFame, x, y, TEXT_SKIP_DRAW, NULL);
+            break;
+        case PC_ACTION_LOG_OFF:
+            AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, y, TEXT_SKIP_DRAW, NULL);
+            break;
+        }
+    }
+    InitMenuInUpperLeftCornerNormal(windowId, sPCMenuNumActions, 0);
     CopyWindowToVram(windowId, COPYWIN_FULL);
-    InitMultichoiceCheckWrap(FALSE, numChoices, windowId, MULTI_PC);
+    InitMultichoiceCheckWrap(FALSE, sPCMenuNumActions, windowId, MULTI_PC);
+}
+
+// Special: VAR_RESULT, the row chosen in the PC menu (or MULTI_B_PRESSED),
+// becomes the PC_ACTION_* of that row.
+void GetPCMenuAction(void)
+{
+    if (gSpecialVar_Result < sPCMenuNumActions)
+        gSpecialVar_Result = sPCMenuActions[gSpecialVar_Result];
+    else
+        gSpecialVar_Result = PC_ACTION_LOG_OFF;
 }
 
 void ScriptMenu_DisplayPCStartupPrompt(void)
