@@ -832,6 +832,22 @@ except for legitimate evolution effects.
 
 ---
 
+## Status (2026-09-27): implemented
+
+A scientist (same sprite as the lab aide) stands in the bottom-right corner of
+Birch's lab, at (10, 11). Talking to them: "Some POKéMON evolve when they're
+traded. I can trade your POKéMON and send it right back. Would you like me to
+help?" → choose a party Pokémon → either "That POKéMON won't evolve by
+trading." or the game's evolution scene. Eligibility uses the game's own
+`GetEvolutionTargetSpecies` in trade mode (so Everstone and the held-item
+rules are the game's), asked of a copy; the evolution then calls it on the
+real Pokémon, which consumes the trade item exactly like a trade, and plays
+the standard evolution scene (not cancellable, as after a trade). Code:
+`src/tradeback.c`, the lab's `scripts.inc` and `map.json`. Tests:
+`test/cases/test_tradeback.py`.
+
+---
+
 # 13. Vanilla Save Compatibility
 
 This is a hard project requirement.

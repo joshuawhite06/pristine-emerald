@@ -763,6 +763,62 @@ LittlerootTown_ProfessorBirchsLab_Text_CountlessPokemonAwait:
 	.string "Argh, I'm getting the itch to get out\n"
 	.string "and do fieldwork again!$"
 
+@ pristine-emerald: the trade-back scientist (plan.md §12). Trade evolutions
+@ without a link cable: the game's trade-evolution rules and evolution scene,
+@ on the player's own Pokémon (src/tradeback.c).
+LittlerootTown_ProfessorBirchsLab_EventScript_TradeBack::
+	lock
+	faceplayer
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TradeBackOffer, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, LittlerootTown_ProfessorBirchsLab_EventScript_TradeBackDecline
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TradeBackWhichMon, MSGBOX_DEFAULT
+	special ChoosePartyMon
+	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, LittlerootTown_ProfessorBirchsLab_EventScript_TradeBackDecline
+	special CheckSelectedMonTradeEvolution
+	goto_if_eq VAR_RESULT, FALSE, LittlerootTown_ProfessorBirchsLab_EventScript_TradeBackWontEvolve
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TradeBackHereWeGo, MSGBOX_DEFAULT
+	closemessage
+	fadescreen FADE_TO_BLACK
+	special DoSelectedMonTradeEvolution
+	waitstate
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TradeBackDone, MSGBOX_DEFAULT
+	release
+	end
+
+LittlerootTown_ProfessorBirchsLab_EventScript_TradeBackWontEvolve::
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TradeBackWontEvolve, MSGBOX_DEFAULT
+	release
+	end
+
+LittlerootTown_ProfessorBirchsLab_EventScript_TradeBackDecline::
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TradeBackDecline, MSGBOX_DEFAULT
+	release
+	end
+
+LittlerootTown_ProfessorBirchsLab_Text_TradeBackOffer:
+	.string "Some POKéMON evolve when they're\n"
+	.string "traded.\p"
+	.string "I can trade your POKéMON and send\n"
+	.string "it right back.\p"
+	.string "Would you like me to help?$"
+
+LittlerootTown_ProfessorBirchsLab_Text_TradeBackWhichMon:
+	.string "Which POKéMON should I trade?$"
+
+LittlerootTown_ProfessorBirchsLab_Text_TradeBackHereWeGo:
+	.string "All right! Here goes {STR_VAR_1}!$"
+
+LittlerootTown_ProfessorBirchsLab_Text_TradeBackDone:
+	.string "And back it comes!\n"
+	.string "Take good care of it.$"
+
+LittlerootTown_ProfessorBirchsLab_Text_TradeBackWontEvolve:
+	.string "That POKéMON won't evolve\n"
+	.string "by trading.$"
+
+LittlerootTown_ProfessorBirchsLab_Text_TradeBackDecline:
+	.string "Come back if you need a trade!$"
+
 LittlerootTown_ProfessorBirchsLab_Text_TakeThisToo:
 	.string "PROF. BIRCH: Oh, and one more thing.\n"
 	.string "Take this, too!$"

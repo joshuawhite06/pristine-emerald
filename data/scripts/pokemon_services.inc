@@ -43,7 +43,6 @@ EventScript_ServiceChooseNature::
 	waitmessage
 	setvar VAR_0x8004, SCROLL_MULTI_NATURES
 	special ShowScrollableMultichoice
-	waitstate
 	copyvar VAR_0x8004, VAR_0x8006
 	goto_if_ge VAR_RESULT, NUM_NATURES, EventScript_PokemonServicesMenu
 	copyvar VAR_0x8005, VAR_RESULT

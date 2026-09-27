@@ -549,3 +549,6 @@ gSpecials::
 	def_special ChangeSelectedMonNature
 	def_special GetSelectedMonShiny
 	def_special ToggleSelectedMonShiny
+	@ pristine-emerald: trade-back scientist (src/tradeback.c)
+	def_special CheckSelectedMonTradeEvolution
+	def_special DoSelectedMonTradeEvolution
