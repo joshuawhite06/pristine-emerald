@@ -13,6 +13,16 @@
 #include "constants/abilities.h"
 #include "constants/species.h"
 
+// The POKéMON SERVICES menu (a scrolling list, SCROLL_MULTI_POKEMON_SERVICES
+// in field_specials.c). Order must match EventScript_PokemonServicesMenu.
+const u8 gText_ServiceChangeNature[] = _("CHANGE NATURE");
+const u8 gText_ServiceChangeAbility[] = _("CHANGE ABILITY");
+const u8 gText_ServiceResetEVs[] = _("RESET EVs");
+const u8 gText_ServiceMoveReminder[] = _("MOVE REMINDER");
+const u8 gText_ServiceMoveDeleter[] = _("MOVE DELETER");
+const u8 gText_ServiceToggleShiny[] = _("TOGGLE SHINY");
+const u8 gText_ServiceTradeEvolution[] = _("TRADE EVOLUTION");
+
 static struct Pokemon *SelectedMon(void)
 {
     return &gPlayerParty[gSpecialVar_0x8004];

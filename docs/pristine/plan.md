@@ -846,6 +846,11 @@ the standard evolution scene (not cancellable, as after a trade). Code:
 `src/tradeback.c`, the lab's `scripts.inc` and `map.json`. Tests:
 `test/cases/test_tradeback.py`.
 
+Also in the PC (2026-09-27): POKéMON SERVICES > TRADE EVOLUTION does the same
+from any Pokémon Center, with a confirmation naming the result ("Trading
+BUDDY will make it evolve into ALAKAZAM."). The services menu became a
+scrolling list (6 entries visible) to fit it.
+
 ---
 
 # 13. Vanilla Save Compatibility

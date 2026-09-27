@@ -30,6 +30,7 @@
 #include "pokeblock.h"
 #include "pokemon.h"
 #include "pokemon_storage_system.h"
+#include "pokemon_services.h"
 #include "pokemon_summary_screen.h"
 #include "random.h"
 #include "rayquaza_scene.h"
@@ -2381,6 +2382,16 @@ void ShowScrollableMultichoice(void)
         task->tKeepOpenAfterSelect = FALSE;
         task->tTaskId = taskId;
         break;
+    case SCROLL_MULTI_POKEMON_SERVICES:
+        task->tMaxItemsOnScreen = MAX_SCROLL_MULTI_ON_SCREEN;
+        task->tNumItems = 8;
+        task->tLeft = 1;
+        task->tTop = 1;
+        task->tWidth = 12;
+        task->tHeight = 12;
+        task->tKeepOpenAfterSelect = FALSE;
+        task->tTaskId = taskId;
+        break;
     case SCROLL_MULTI_NATURES:
         task->tMaxItemsOnScreen = MAX_SCROLL_MULTI_ON_SCREEN;
         task->tNumItems = NUM_NATURES + 1;
@@ -2551,7 +2562,19 @@ static const u8 *const sScrollableMultichoiceOptions[][MAX_SCROLL_MULTI_LENGTH] 
         gText_Underpowered,
         gText_WhenInDanger,
         gText_Exit
-    }
+    },
+    [SCROLL_MULTI_NATURES] = {gText_Cancel}, // filled at runtime from gNatureNamePointers
+    [SCROLL_MULTI_POKEMON_SERVICES] =
+    {
+        gText_ServiceChangeNature,
+        gText_ServiceChangeAbility,
+        gText_ServiceResetEVs,
+        gText_ServiceMoveReminder,
+        gText_ServiceMoveDeleter,
+        gText_ServiceToggleShiny,
+        gText_ServiceTradeEvolution,
+        gText_Cancel
+    },
 };
 
 static void Task_ShowScrollableMultichoice(u8 taskId)

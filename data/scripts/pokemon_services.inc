@@ -6,9 +6,10 @@
 EventScript_PokemonServices::
 	playse SE_PC_LOGIN
 EventScript_PokemonServicesMenu::
-	@ Seven entries reach into the message box, so no prompt with this menu.
-	closemessage
-	multichoice 0, 0, MULTI_POKEMON_SERVICES, FALSE
+	message Text_PokemonServicesWhich
+	waitmessage
+	setvar VAR_0x8004, SCROLL_MULTI_POKEMON_SERVICES
+	special ShowScrollableMultichoice
 	switch VAR_RESULT
 	case 0, EventScript_ServiceChangeNature
 	case 1, EventScript_ServiceChangeAbility
@@ -16,6 +17,7 @@ EventScript_PokemonServicesMenu::
 	case 3, EventScript_ServiceMoveReminder
 	case 4, EventScript_ServiceMoveDeleter
 	case 5, EventScript_ServiceToggleShiny
+	case 6, EventScript_ServiceTradeEvolution
 	goto EventScript_PCMainMenu
 	end
 
@@ -103,6 +105,28 @@ EventScript_ServiceConfirmUnshiny::
 	goto_if_eq VAR_RESULT, FALSE, EventScript_ServiceCantChange
 	playse SE_USE_ITEM
 	msgbox Text_ShinyRemoved, MSGBOX_DEFAULT
+	goto EventScript_PokemonServicesMenu
+	end
+
+@ --- Trade Evolution: the trade-back scientist's service (src/tradeback.c) --
+
+EventScript_ServiceTradeEvolution::
+	msgbox Text_TradeWhichMon, MSGBOX_DEFAULT
+	special ChoosePartyMon
+	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, EventScript_PokemonServicesMenu
+	special CheckSelectedMonTradeEvolution
+	goto_if_eq VAR_RESULT, FALSE, EventScript_ServiceWontEvolve
+	msgbox Text_TradeConfirm, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, EventScript_PokemonServicesMenu
+	closemessage
+	fadescreen FADE_TO_BLACK
+	special DoSelectedMonTradeEvolution
+	waitstate
+	goto EventScript_PokemonServicesMenu
+	end
+
+EventScript_ServiceWontEvolve::
+	msgbox Text_TradeWontEvolve, MSGBOX_DEFAULT
 	goto EventScript_PokemonServicesMenu
 	end
 
@@ -211,6 +235,21 @@ EventScript_ServiceLastSurf::
 Text_ServiceEgg:
 	.string "That's an EGG.\n"
 	.string "It can't use this service.$"
+
+Text_PokemonServicesWhich:
+	.string "Which service?$"
+
+Text_TradeWhichMon:
+	.string "Which POKéMON should be traded?$"
+
+Text_TradeConfirm:
+	.string "Trading {STR_VAR_1} will make it\n"
+	.string "evolve into {STR_VAR_2}.\p"
+	.string "Trade it and get it right back?$"
+
+Text_TradeWontEvolve:
+	.string "That POKéMON won't evolve\n"
+	.string "by trading.$"
 
 Text_NatureWhichMon:
 	.string "Which POKéMON's nature?$"

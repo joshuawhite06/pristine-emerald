@@ -132,5 +132,41 @@ class TradeBack(unittest.TestCase):
         self.assertEqual(game.party()[0].encode(), before.encode())
 
 
+class TradeEvolutionAtThePC(TradeBack):
+    """The same service in the PC's POKéMON SERVICES (TRADE EVOLUTION)."""
+
+    PC_SERVICES, TRADE_EVOLUTION = 2, 6
+
+    def at_scientist(self, name, party):
+        # Same checks, reached through a Pokémon Center PC instead.
+        if not fixtures.exists("save", "pc-front"):
+            self.skipTest("needs pc-front.sav")
+        sav = savefile.SaveFile.load(fixtures.save("pc-front"))
+        sav.set_party(party)
+        path = Path(tempfile.mkdtemp(dir=paths.test_out())) / f"pc-{name}.sav"
+        sav.save(path)
+        return Emerald.from_save(path, name=f"pc-{name}")
+
+    def trade(self, game, slot, accept=True):
+        game.press("A", hold=2, wait=30)  # use the PC
+        game.choose(self.PC_SERVICES)
+        game.choose_from_list(self.TRADE_EVOLUTION)
+        game.choose_party_mon(slot)
+        # A YES/NO only follows for a Pokémon that would evolve.
+        game.advance_text_until(lambda s: s.yes_no_open() or (s.in_overworld() and s.scroll_list_open()),
+                                description="confirmation or back at the menu")
+        if game.yes_no_open():
+            game.run(10)
+            game.press("A" if accept else "B", hold=2, wait=10)
+        game.poll_until(lambda s: s.in_overworld() and s.scroll_list_open(), 8000, step=30, press="A",
+                        description="back at the services menu")
+
+    def test_declining_changes_nothing(self):
+        before = self.mon("SPECIES_HAUNTER", "SPECIES_GENGAR")
+        game = self.at_scientist("tb-decline", [before])
+        self.trade(game, 0, accept=False)
+        self.assertEqual(game.party()[0].encode(), before.encode())
+
+
 if __name__ == "__main__":
     unittest.main()

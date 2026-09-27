@@ -771,26 +771,6 @@ static const struct MenuAction MultichoiceList_TagMatchType[] =
     {gText_Exit},
 };
 
-// pristine-emerald: the PC's POKéMON SERVICES menu (data/scripts/pokemon_services.inc).
-// Order must match the switch in EventScript_PokemonServicesMenu.
-static const u8 sText_ServiceChangeNature[] = _("CHANGE NATURE");
-static const u8 sText_ServiceChangeAbility[] = _("CHANGE ABILITY");
-static const u8 sText_ServiceResetEVs[] = _("RESET EVs");
-static const u8 sText_ServiceMoveReminder[] = _("MOVE REMINDER");
-static const u8 sText_ServiceMoveDeleter[] = _("MOVE DELETER");
-static const u8 sText_ServiceToggleShiny[] = _("TOGGLE SHINY");
-
-static const struct MenuAction MultichoiceList_PokemonServices[] =
-{
-    {sText_ServiceChangeNature},
-    {sText_ServiceChangeAbility},
-    {sText_ServiceResetEVs},
-    {sText_ServiceMoveReminder},
-    {sText_ServiceMoveDeleter},
-    {sText_ServiceToggleShiny},
-    {gText_Cancel},
-};
-
 static const struct MenuAction MultichoiceList_Exit[] =
 {
     {gText_Exit},
@@ -918,7 +898,6 @@ static const struct MultichoiceListStruct sMultichoiceLists[] =
     [MULTI_SLATEPORT_TENT_RULES]       = MULTICHOICE(MultichoiceList_SlateportTentRules),
     [MULTI_FALLARBOR_TENT_RULES]       = MULTICHOICE(MultichoiceList_FallarborTentRules),
     [MULTI_TAG_MATCH_TYPE]             = MULTICHOICE(MultichoiceList_TagMatchType),
-    [MULTI_POKEMON_SERVICES]           = MULTICHOICE(MultichoiceList_PokemonServices),
 };
 
 const u8 *const gStdStrings[] =

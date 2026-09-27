@@ -13,7 +13,7 @@ C = gamedata.const
 FIXTURE = "pc-front"
 
 PC_SERVICES = 2  # PC top menu: SOMEONE'S PC, <PLAYER>'s PC, POKéMON SERVICES, ...
-CHANGE_NATURE, CHANGE_ABILITY, RESET_EVS, MOVE_REMINDER, MOVE_DELETER, TOGGLE_SHINY, CANCEL = range(7)
+CHANGE_NATURE, CHANGE_ABILITY, RESET_EVS, MOVE_REMINDER, MOVE_DELETER, TOGGLE_SHINY, TRADE_EVOLUTION, CANCEL = range(8)
 
 
 class Services(unittest.TestCase):
@@ -44,10 +44,10 @@ class Services(unittest.TestCase):
     def open_service(self, game, service):
         game.press("A", hold=2, wait=30)  # use the PC
         game.choose(PC_SERVICES)
-        game.choose(service)
+        game.choose_from_list(service)  # the services menu is a scrolling list
 
     def back_at_services_menu(self, game):
-        game.advance_text_until(lambda s: s.multichoice_open(), description="services menu again")
+        game.advance_text_until(lambda s: s.scroll_list_open(), description="services menu again")
 
     def ralts(self, **kw):
         kw.setdefault("ivs", (31, 7, 19, 25, 30, 12))
@@ -165,7 +165,7 @@ class Services(unittest.TestCase):
         nature = gen3.NATURES[before.box.nature]
         self.assert_pid_change(before, shiny, nature, shiny=True)
 
-        game.choose(TOGGLE_SHINY)
+        game.choose_from_list(TOGGLE_SHINY)
         game.choose_party_mon(0)
         game.answer(yes=True)
         self.back_at_services_menu(game)
