@@ -34,9 +34,6 @@ put into a party by editing the save, not caught by hand.
 ### Present
 
 - `pc-front.sav`: Oldale Town Pokémon Center 1F, facing the PC. Party: Mudkip L6.
-- `petalburg-pc2f.sav`: saved in the link Trade Center; CONTINUE puts the
-  player on Petalburg Pokémon Center 2F. Party: Mudkip L10, Wurmple L3,
-  Ralts L4.
 
 ## State fixtures (`states/<name>.state`, local only)
 
