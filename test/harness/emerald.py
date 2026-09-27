@@ -191,6 +191,28 @@ class Emerald(Session):
             self.press("DOWN", hold=2, wait=8)
         self.press("A", hold=2, wait=10)
 
+    def save_game(self):
+        """Save through START > SAVE (answering YES to "save?" and "overwrite?",
+        both the default) and wait until the battery save has been written.
+        Returns the new battery save."""
+        import re
+        enum = (paths.REPO / "src" / "start_menu.c").read_text().split("MENU_ACTION_POKEDEX,", 1)[1]
+        save_action = 1 + [a.strip() for a in enum.split("}", 1)[0].split(",")].index("MENU_ACTION_SAVE")
+        before = self.battery()
+        self.press("START", hold=2, wait=40)
+        count = self.sym("sNumStartMenuActions")[0]
+        actions = list(self.sym("sCurrentStartMenuActions")[:count])
+        target = actions.index(save_action)
+        cursor = self.syms.addr("sStartMenuCursorPos")
+        for _ in range(count * 2):
+            if self.u8(cursor) == target:
+                break
+            self.press("DOWN" if self.u8(cursor) < target else "UP", hold=2, wait=8)
+        self.press("A", hold=2, wait=20)
+        self.poll_until(lambda s: s.battery() != before and not s.field_controls_locked(), 4000, step=30,
+                        press="A", description="game saved")
+        return self.battery()
+
     def field_controls_locked(self):
         """True while a script or menu holds the player (e.g. dialogue)."""
         return bool(self.u8(self.syms.addr("sLockFieldControls")))
