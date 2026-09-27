@@ -601,19 +601,70 @@ Level 5
 
 ## Third starter
 
-At the Route 119 May/Brendan encounter after the Weather Institute, give the final remaining Hoenn starter.
+> **Changed 2026-09-27:** Mr. Stone gives the third starter, replacing the
+> Route 119 gift below (and the 5 Rare Candies from addendum 1). The Route 119
+> rival encounter stays vanilla. See "Decision" at the end of this section.
 
-Suggested level:
+~~At the Route 119 May/Brendan encounter after the Weather Institute, give the final remaining Hoenn starter.~~
 
-```text
-Level 20
-```
+~~Suggested level: Level 20~~
 
-The rival can mention that Professor Birch asked them to give it to the player for Pokédex research.
+~~The rival can mention that Professor Birch asked them to give it to the player for Pokédex research.~~
 
 Use dedicated event flags so the gifts cannot be duplicated.
 
 Use existing unused/reserved event flags where possible.
+
+## Decision (2026-09-27): Mr. Stone gives the third starter
+
+When the player reports back after delivering Steven's letter, Mr. Stone
+gives the last remaining Hoenn starter, which is the rival's species, e.g.
+Treecko when the player chose Mudkip:
+
+```text
+Player: Treecko   Rival: Torchic   Rustboro gift: Mudkip    Mr. Stone: Torchic
+Player: Torchic   Rival: Mudkip    Rustboro gift: Treecko   Mr. Stone: Mudkip
+Player: Mudkip    Rival: Treecko   Rustboro gift: Torchic   Mr. Stone: Treecko
+```
+
+Level 5.
+
+Dialogue (sketch):
+
+```text
+MR. STONE: You delivered my LETTER?
+           Thank you kindly!
+           This is my way of thanking you.        (vanilla)
+MR. STONE: I've been holding onto this POKéMON,
+           but I don't think I have time to
+           raise it.
+           It would be happier traveling with
+           a TRAINER like you.                    (new)
+Obtained TREECKO                                  (new)
+```
+
+Rules:
+
+- The starter has its own new flag (an unused vanilla flag), separate from
+  FLAG_RECEIVED_EXP_SHARE, so it can't be duplicated.
+- Exp. Share interaction (see addendum 1): in a normal playthrough Birch gave
+  the Exp. Share, so Mr. Stone gives only the starter. If Birch's gift never
+  happened (a vanilla save already past the lab, or a full bag at the lab),
+  Mr. Stone gives the vanilla Exp. Share and then the starter.
+- A vanilla save already past Mr. Stone's reward can talk to him again and
+  receive the starter once.
+- Full party: the starter goes to the PC like other gift Pokémon. Party and
+  boxes full: he keeps it until there's room.
+- The Route 119 rival encounter is unchanged.
+
+Timeline:
+
+| When | Vanilla | This hack |
+|---|---|---|
+| Birch's lab | Pokédex | + Exp. Share (addendum 1) |
+| Rustboro rival | battle | + second starter |
+| Mr. Stone | Exp. Share | third starter (+ Exp. Share if Birch's never happened) |
+| Route 119 rival | battle | unchanged |
 
 ---
 

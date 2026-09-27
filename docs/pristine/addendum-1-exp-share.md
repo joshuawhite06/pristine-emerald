@@ -57,9 +57,18 @@ PROF. BIRCH: Have a POKéMON hold the EXP. SHARE,
 May/Brendan gives 5 Poké Balls                  (vanilla, unchanged)
 ```
 
-Mr. Stone's later reward is replaced by 5 Rare Candies, but only when Birch's
-gift happened (FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH, vanilla's unused flag
-0x20). A save from vanilla that is already past the lab, or a full bag at the
-lab, leaves the flag clear, and Mr. Stone gives the Exp. Share as in vanilla,
-so every player gets exactly one.
+Birch's gift sets FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH (vanilla's unused flag
+0x20). When it's set, Mr. Stone doesn't give a second Exp. Share. A save from
+vanilla that is already past the lab, or a full bag at the lab, leaves the
+flag clear, and Mr. Stone gives the Exp. Share as in vanilla, so every player
+gets exactly one.
+
+### Decision (2026-09-27): Mr. Stone gives a starter instead of Rare Candies
+
+The 5 Rare Candies are dropped. Mr. Stone gives the third Hoenn starter
+instead (plan.md §11, "Decision: Mr. Stone gives the third starter"), plus the
+Exp. Share when Birch's gift never happened.
+
+Status: the Birch gift is implemented; Mr. Stone still gives 5 Rare Candies in
+the code until the starter gift replaces them.
 Test fixture: `test/fixtures/saves/route103-before-lab.sav`.

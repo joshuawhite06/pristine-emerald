@@ -21,7 +21,6 @@ Where you save matters: CONTINUE resumes exactly there, facing the same way.
 
 | name | where | used for |
 |---|---|---|
-| `route119-before-rival` | Route 119, after the Weather Institute, just before the rival battle | third starter gift |
 | `late-game` | any late save you have (lots of flags, boxes in use, many items) | vanilla save compatibility |
 
 Anything in Littleroot works for the Birch's lab trade-back NPC; test Pokémon
@@ -31,7 +30,8 @@ put into a party by editing the save, not caught by hand.
 A save doesn't have to be made where a test happens:
 `SaveFile.set_continue_warp()` makes CONTINUE load any map at any position
 (the game's own mechanism for saves made in link rooms), and story flags and
-vars can be set the same way. `test_exp_share.py` reaches Mr. Stone like this.
+vars can be set the same way. `test_exp_share.py` reaches Mr. Stone like this
+(also used for his third-starter gift, so no Route 119 save is needed).
 Real saves are still better for story beats with many interlocking flags.
 
 ### Present
