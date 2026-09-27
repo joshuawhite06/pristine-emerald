@@ -34,9 +34,11 @@ class Services(unittest.TestCase):
         template = savefile.SaveFile.load(fixtures.save(FIXTURE)).party()[0]
         return make_mon(self.rom, template, C(species), level, [C(m) for m in moves], **kw)
 
-    def at_pc(self, name, party):
+    def at_pc(self, name, party, flags=()):
         sav = savefile.SaveFile.load(fixtures.save(FIXTURE))
         sav.set_party(party)
+        for flag in flags:
+            sav.set_flag(C(flag))
         path = Path(tempfile.mkdtemp(dir=paths.test_out())) / f"{name}.sav"
         sav.save(path)
         return Emerald.from_save(path, name=name)
@@ -254,7 +256,7 @@ class Services(unittest.TestCase):
 
     # --- Move Reminder -------------------------------------------------------
 
-    def reminder_list(self, mon):
+    def reminder_list(self, mon, egg=True, tutor=True):
         """Oracle: what the PC's Move Reminder should offer, in order: level-up
         moves up to its level, then egg moves of its species and every
         pre-evolution, then move tutor moves; nothing it knows, no repeats."""
@@ -269,17 +271,19 @@ class Services(unittest.TestCase):
         for level, move in self.rom.level_up_moves(species):
             if level <= mon.level:
                 add(move)
-        stage = species
+        stage = species if egg else 0
         while stage:
             for move in self.rom.egg_moves(stage):
                 add(move)
             stage = self.rom.pre_evolution(stage)
-        for move in self.rom.tutor_moves(species):
+        for move in self.rom.tutor_moves(species) if tutor else []:
             add(move)
         return out
 
-    def open_reminder(self, name, mon):
-        game = self.at_pc(name, [mon])
+    UNLOCKED = ("FLAG_RECEIVED_EGG_MOVES_CALL", "FLAG_RECEIVED_TUTOR_MOVES_CALL")
+
+    def open_reminder(self, name, mon, flags=UNLOCKED):
+        game = self.at_pc(name, [mon], flags)
         self.open_service(game, MOVE_REMINDER)
         game.choose_party_mon(0)
         relearner = game.syms.func_in("CB2_MoveRelearnerMain", "move_relearner")
@@ -294,6 +298,17 @@ class Services(unittest.TestCase):
         game.poll_until(lambda s: s.callback2() != relearner, 3000, step=20, press="A", description="move taught")
         self.back_at_services_menu(game)
         self.assertEqual(game.u8(game.syms.addr("gMoveReminderAllMoves")), 0, "extra moves left switched on")
+
+    def test_egg_and_tutor_moves_unlock_with_birchs_calls(self):
+        mon = self.mon("SPECIES_MARILL", 20, ["MOVE_TACKLE"])
+        cases = [((), False, False),
+                 (("FLAG_RECEIVED_EGG_MOVES_CALL",), True, False),
+                 (self.UNLOCKED, True, True)]
+        for flags, egg, tutor in cases:
+            with self.subTest(flags=flags):
+                game, _ = self.open_reminder(f"reminder-gate-{len(flags)}", mon, flags)
+                self.assertEqual(game.u16(game.syms.addr("gSpecialVar_0x8005")),
+                                 len(self.reminder_list(mon, egg, tutor)))
 
     def test_move_reminder_lists_level_up_egg_and_tutor_moves(self):
         mons = [

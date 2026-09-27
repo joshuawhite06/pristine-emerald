@@ -182,6 +182,7 @@ SECTIONS {
         src/personality_tools.o(.text);
         src/tradeback.o(.text);
         src/tm_machine.o(.text);
+        src/birch_calls.o(.text);
         src/field_poison.o(.text);
         src/pokemon_size_record.o(.text);
         src/give_gift_ribbon_to_party.o(.text);
@@ -565,6 +566,7 @@ SECTIONS {
         src/personality_tools.o(.rodata);
         src/tradeback.o(.rodata);
         src/tm_machine.o(.rodata);
+        src/birch_calls.o(.rodata);
         src/pokemon_size_record.o(.rodata)
         src/give_gift_ribbon_to_party.o(.rodata);
         src/fldeff_misc.o(.rodata);

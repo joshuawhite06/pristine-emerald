@@ -34,7 +34,7 @@
 #include "constants/map_types.h"
 #include "constants/songs.h"
 #include "constants/trainer_hill.h"
-#include "tm_machine.h"
+#include "birch_calls.h"
 
 static EWRAM_DATA u8 sWildEncounterImmunitySteps = 0;
 static EWRAM_DATA u16 sPrevMetatileBehavior = 0;
@@ -583,12 +583,9 @@ static bool8 TryStartStepCountScript(u16 metatileBehavior)
             ScriptContext_SetupScript(LittlerootTown_ProfessorBirchsLab_EventScript_ScottAboardSSTidalCall);
             return TRUE;
         }
-        // pristine-emerald: Birch's TM Machine call (src/tm_machine.c)
-        if (ShouldDoBirchTmMachineCall() == TRUE)
-        {
-            ScriptContext_SetupScript(EventScript_BirchTmMachineCall);
+        // pristine-emerald: PROF. BIRCH's unlock calls (src/birch_calls.c)
+        if (TryStartBirchCall() == TRUE)
             return TRUE;
-        }
         if (ShouldDoRoxanneCall() == TRUE)
         {
             ScriptContext_SetupScript(RustboroCity_Gym_EventScript_RegisterRoxanne);

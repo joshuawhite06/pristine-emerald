@@ -1,11 +1,10 @@
 // pristine-emerald: PROF. BIRCH's TM MACHINE (docs/pristine/plan.md,
-// "TM Machine"). After the Elite Four, Birch calls about it; from then on the
-// Pokémon Center PC has a TM MACHINE entry that hands out a copy of any TM,
-// as often as the player likes.
+// "TM Machine"). After the Elite Four, Birch calls about it (birch_calls.c);
+// from then on the Pokémon Center PC has a TM MACHINE entry that hands out a
+// copy of any TM, as often as the player likes.
 #include "global.h"
 #include "data.h"
 #include "event_data.h"
-#include "fieldmap.h"
 #include "item.h"
 #include "malloc.h"
 #include "party_menu.h"
@@ -13,7 +12,6 @@
 #include "strings.h"
 #include "tm_machine.h"
 #include "constants/items.h"
-#include "constants/map_types.h"
 
 #define TM_NAME_LENGTH 24 // "TM01 " + a move name + EOS, with room to spare
 
@@ -22,8 +20,6 @@ static const u8 sText_Space[] = _(" ");
 // Where the list's cursor was, so picking TM after TM doesn't start from the top.
 static EWRAM_DATA u16 sCursorScrollOffset = 0;
 static EWRAM_DATA u16 sCursorRow = 0;
-// Outdoor steps since the game was cleared, for the timing of Birch's call.
-static EWRAM_DATA u8 sCallStepCounter = 0;
 
 // --- the list ------------------------------------------------------------------
 
@@ -72,36 +68,4 @@ void TmMachine_GetCursor(u16 *scrollOffset, u16 *row)
 void ResetTmMachineCursor(void)
 {
     TmMachine_SaveCursor(0, 0);
-}
-
-// --- Birch's call ----------------------------------------------------------------
-
-// Checked on every step (field_control_avatar.c, next to Scott's post-game
-// call): once the game is cleared, Birch calls after 50 steps, on the first
-// outdoor step after that. He waits while Scott's Battle Frontier call is
-// still due, so the two never overlap. Saves cleared before this hack get the
-// call the same way. The count lives in RAM only (it restarts if the game is
-// turned off before the call), keeping the save untouched.
-#define BIRCH_CALL_STEPS 50
-
-bool8 ShouldDoBirchTmMachineCall(void)
-{
-    if (!FlagGet(FLAG_SYS_GAME_CLEAR) || FlagGet(FLAG_RECEIVED_TM_MACHINE_CALL))
-        return FALSE;
-    if (sCallStepCounter < BIRCH_CALL_STEPS)
-    {
-        sCallStepCounter++;
-        return FALSE;
-    }
-    if (FlagGet(FLAG_SCOTT_CALL_BATTLE_FRONTIER))
-        return FALSE;
-    switch (gMapHeader.mapType)
-    {
-    case MAP_TYPE_TOWN:
-    case MAP_TYPE_CITY:
-    case MAP_TYPE_ROUTE:
-    case MAP_TYPE_OCEAN_ROUTE:
-        return TRUE;
-    }
-    return FALSE;
 }

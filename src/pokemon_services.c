@@ -11,6 +11,7 @@
 #include "pokemon_summary_screen.h"
 #include "string_util.h"
 #include "constants/abilities.h"
+#include "constants/flags.h"
 #include "constants/moves.h"
 #include "constants/party_menu.h"
 #include "constants/species.h"
@@ -89,7 +90,9 @@ u8 AppendMoveReminderExtraMoves(struct Pokemon *mon, u16 *moves, u8 numMoves)
     for (i = 0; i < MAX_MON_MOVES; i++)
         known[i] = GetMonData(mon, MON_DATA_MOVE1 + i);
 
-    for (stage = species; stage != SPECIES_NONE; stage = GetPreEvolution(stage))
+    // Egg moves after Birch's call at the 6th badge (birch_calls.c).
+    for (stage = species; FlagGet(FLAG_RECEIVED_EGG_MOVES_CALL) && stage != SPECIES_NONE;
+         stage = GetPreEvolution(stage))
     {
         for (i = 0; gEggMoves[i] != EGG_MOVES_TERMINATOR; i++)
         {
@@ -101,7 +104,8 @@ u8 AppendMoveReminderExtraMoves(struct Pokemon *mon, u16 *moves, u8 numMoves)
         }
     }
 
-    for (i = 0; i < TUTOR_MOVE_COUNT; i++)
+    // Tutor moves after Birch's call at the 8th badge.
+    for (i = 0; FlagGet(FLAG_RECEIVED_TUTOR_MOVES_CALL) && i < TUTOR_MOVE_COUNT; i++)
         if (CanSpeciesLearnTutorMove(species, i))
             numMoves = AddMove(moves, numMoves, gTutorMoves[i], known);
 

@@ -7,6 +7,5 @@ const u8 *TmMachine_ListText(const u8 *names, u32 i);
 void TmMachine_SaveCursor(u16 scrollOffset, u16 row);
 void TmMachine_GetCursor(u16 *scrollOffset, u16 *row);
 void ResetTmMachineCursor(void);
-bool8 ShouldDoBirchTmMachineCall(void);
 
 #endif // GUARD_TM_MACHINE_H
