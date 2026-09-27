@@ -101,6 +101,20 @@ class RustboroStarterGift(unittest.TestCase):
         self.assertEqual(len(boxed), 1)
         self.assertTrue(game.flag(C("FLAG_RECEIVED_RUSTBORO_STARTER")))
 
+    def test_meeting_on_route_104_instead_gives_it_too(self):
+        # Skip her in Rustboro and she meets you outside Mr. Briney's cottage
+        # instead (which also hides the Rustboro rival for good).
+        game = self.session(
+            "route104-gift",
+            lambda sav: sav.set_continue_warp(*gamedata.map_id("Route104"), 17, 53),
+        )
+        game.poll_until(lambda s: s.field_controls_locked(), 120, step=20, press="UP", hold=16,
+                        description="Route 104 rival trigger")
+        game.poll_until(lambda s: not s.field_controls_locked(), 6000, step=30, press="B",
+                        description="conversation ends")
+        self.assertEqual(self.gifts(game), [(C("SPECIES_TORCHIC"), GIFT_LEVEL)])
+        self.assertTrue(game.flag(C("FLAG_RECEIVED_RUSTBORO_STARTER")))
+
     def test_saves_from_before_the_hack_still_get_it(self):
         # Already met her (declined the battle), or already beat her, on vanilla.
         cases = {

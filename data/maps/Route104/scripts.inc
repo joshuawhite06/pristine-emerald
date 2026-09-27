@@ -104,6 +104,7 @@ Route104_EventScript_MayEncounter::
 	waitmovement 0
 	applywaitmovement LOCALID_ROUTE104_RIVAL, Route104_Movement_RivalApproachPlayer
 	copyobjectxytoperm LOCALID_ROUTE104_RIVAL
+	call EventScript_RivalGiveStarter
 	msgbox Route104_Text_MayMinesDecentLetsBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleMay
 	msgbox Route104_Text_MayHaventRaisedPokemon, MSGBOX_DEFAULT
@@ -126,6 +127,7 @@ Route104_Movement_PlayerFaceRival:
 	step_end
 
 Route104_EventScript_MayAskToBattle::
+	call EventScript_RivalGiveStarter
 	msgbox Route104_Text_MayLetsBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleMay
 	msgbox Route104_Text_MayHaventRaisedPokemon, MSGBOX_DEFAULT
@@ -141,6 +143,7 @@ Route104_EventScript_BattleMay::
 	end
 
 Route104_EventScript_MayDefeated::
+	call EventScript_RivalGiveStarter
 	msgbox Route104_Text_MayPostBattle, MSGBOX_DEFAULT
 	call_if_eq VAR_0x8008, 0, Route104_EventScript_RestoreMusic
 	releaseall
@@ -189,6 +192,7 @@ Route104_EventScript_BrendanEncounter::
 	waitmovement 0
 	applywaitmovement LOCALID_ROUTE104_RIVAL, Route104_Movement_RivalApproachPlayer
 	copyobjectxytoperm LOCALID_ROUTE104_RIVAL
+	call EventScript_RivalGiveStarter
 	msgbox Route104_Text_BrendanDoingGreatLetsBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleBrendan
 	msgbox Route104_Text_BrendanNoConfidence, MSGBOX_DEFAULT
@@ -197,6 +201,7 @@ Route104_EventScript_BrendanEncounter::
 	end
 
 Route104_EventScript_BrendanAskToBattle::
+	call EventScript_RivalGiveStarter
 	msgbox Route104_Text_BrendanLetsBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, Route104_EventScript_BattleBrendan
 	msgbox Route104_Text_BrendanNoConfidence, MSGBOX_DEFAULT
@@ -212,6 +217,7 @@ Route104_EventScript_BattleBrendan::
 	end
 
 Route104_EventScript_BrendanDefeated::
+	call EventScript_RivalGiveStarter
 	msgbox Route104_Text_BrendanPostBattle, MSGBOX_DEFAULT
 	call_if_eq VAR_0x8008, 0, Route104_EventScript_RestoreMusic
 	releaseall

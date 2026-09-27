@@ -741,7 +741,7 @@ RustboroCity_EventScript_MayEncounter::
 	setvar VAR_RUSTBORO_CITY_STATE, 8
 	setvar VAR_ROUTE104_STATE, 2
 	setvar VAR_0x8008, 0
-	call RustboroCity_EventScript_RivalGiveStarter
+	call EventScript_RivalGiveStarter
 	msgbox RustboroCity_Text_MayPassedBrineyWantToBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, RustboroCity_EventScript_BattleMay
 	msgbox RustboroCity_Text_MayOhHaventRaisedPokemonEnough, MSGBOX_DEFAULT
@@ -751,7 +751,7 @@ RustboroCity_EventScript_MayEncounter::
 
 RustboroCity_EventScript_MayAskToBattle::
 	setvar VAR_0x8008, 1
-	call RustboroCity_EventScript_RivalGiveStarter
+	call EventScript_RivalGiveStarter
 	msgbox RustboroCity_Text_MayWantToBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, RustboroCity_EventScript_BattleMay
 	msgbox RustboroCity_Text_MayOhHaventRaisedPokemonEnough, MSGBOX_DEFAULT
@@ -767,71 +767,11 @@ RustboroCity_EventScript_BattleMay::
 	end
 
 RustboroCity_EventScript_MayBrineyHint::
-	call RustboroCity_EventScript_RivalGiveStarter
+	call EventScript_RivalGiveStarter
 	msgbox RustboroCity_Text_MayMrBrineyHint, MSGBOX_DEFAULT
 	call_if_eq VAR_0x8008, 0, RustboroCity_EventScript_RestoreBgm
 	releaseall
 	end
-
-@ pristine-emerald: the rival gives the Hoenn starter neither of you picked
-@ (plan.md §11) before asking to battle. Also called from the "already met"
-@ and "already defeated" branches, so saves from vanilla get it too. With no
-@ room in the party or PC the flag stays clear and the rival tries again later.
-RustboroCity_EventScript_RivalGiveStarter::
-	goto_if_set FLAG_RECEIVED_RUSTBORO_STARTER, RustboroCity_EventScript_RivalGiveStarterEnd
-	checkplayergender
-	goto_if_eq VAR_RESULT, FEMALE, RustboroCity_EventScript_BrendanOfferStarter
-	msgbox RustboroCity_Text_MayGiveStarter, MSGBOX_DEFAULT
-	goto RustboroCity_EventScript_RivalGiveStarterMon
-
-RustboroCity_EventScript_BrendanOfferStarter::
-	msgbox RustboroCity_Text_BrendanGiveStarter, MSGBOX_DEFAULT
-RustboroCity_EventScript_RivalGiveStarterMon::
-	@ VAR_STARTER_MON: 0 Treecko, 1 Torchic, 2 Mudkip; the rival has the next one.
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_TORCHIC
-	call_if_eq VAR_STARTER_MON, 0, RustboroCity_EventScript_StarterGiftMudkip
-	call_if_eq VAR_STARTER_MON, 1, RustboroCity_EventScript_StarterGiftTreecko
-	givemon VAR_TEMP_TRANSFERRED_SPECIES, 13
-	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, RustboroCity_EventScript_StarterGiftParty
-	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, RustboroCity_EventScript_StarterGiftPC
-	msgbox gText_NoMoreRoomForPokemon, MSGBOX_DEFAULT
-	return
-
-RustboroCity_EventScript_StarterGiftMudkip::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_MUDKIP
-	return
-
-RustboroCity_EventScript_StarterGiftTreecko::
-	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_TREECKO
-	return
-
-RustboroCity_EventScript_StarterGiftParty::
-	call RustboroCity_EventScript_StarterGiftFanfare
-	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, RustboroCity_EventScript_StarterGiftDone
-	call Common_EventScript_GetGiftMonPartySlot
-	call Common_EventScript_NameReceivedPartyMon
-	goto RustboroCity_EventScript_StarterGiftDone
-
-RustboroCity_EventScript_StarterGiftPC::
-	call RustboroCity_EventScript_StarterGiftFanfare
-	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
-	goto_if_eq VAR_RESULT, NO, RustboroCity_EventScript_StarterGiftSentToPC
-	call Common_EventScript_NameReceivedBoxMon
-RustboroCity_EventScript_StarterGiftSentToPC::
-	call Common_EventScript_TransferredToPC
-RustboroCity_EventScript_StarterGiftDone::
-	setflag FLAG_RECEIVED_RUSTBORO_STARTER
-RustboroCity_EventScript_RivalGiveStarterEnd::
-	return
-
-RustboroCity_EventScript_StarterGiftFanfare::
-	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
-	playfanfare MUS_OBTAIN_ITEM
-	message RustboroCity_Text_PlayerReceivedStarter
-	waitmessage
-	waitfanfare
-	return
 
 RustboroCity_EventScript_RestoreBgm::
 	savebgm MUS_DUMMY
@@ -871,7 +811,7 @@ RustboroCity_EventScript_BrendanEncounter::
 	setflag FLAG_ENABLE_RIVAL_MATCH_CALL
 	setvar VAR_RUSTBORO_CITY_STATE, 8
 	setvar VAR_ROUTE104_STATE, 2
-	call RustboroCity_EventScript_RivalGiveStarter
+	call EventScript_RivalGiveStarter
 	msgbox RustboroCity_Text_BrendanPassedBrineyWantToBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, RustboroCity_EventScript_BattleBrendan
 	msgbox RustboroCity_Text_BrendanNoConfidenceInPokemon, MSGBOX_DEFAULT
@@ -880,7 +820,7 @@ RustboroCity_EventScript_BrendanEncounter::
 	end
 
 RustboroCity_EventScript_BrendanAskToBattle::
-	call RustboroCity_EventScript_RivalGiveStarter
+	call EventScript_RivalGiveStarter
 	msgbox RustboroCity_Text_BrendanWantToBattle, MSGBOX_YESNO
 	goto_if_eq VAR_RESULT, YES, RustboroCity_EventScript_BattleBrendan
 	msgbox RustboroCity_Text_BrendanNoConfidenceInPokemon, MSGBOX_DEFAULT
@@ -896,7 +836,7 @@ RustboroCity_EventScript_BattleBrendan::
 	end
 
 RustboroCity_EventScript_BrendanBrineyHint::
-	call RustboroCity_EventScript_RivalGiveStarter
+	call EventScript_RivalGiveStarter
 	msgbox RustboroCity_Text_BrendanMrBrineyHint, MSGBOX_DEFAULT
 	call_if_eq VAR_0x8008, 0, RustboroCity_EventScript_RestoreBgm
 	releaseall
@@ -1132,25 +1072,6 @@ RustboroCity_Text_MayImNotGoingToLose:
 RustboroCity_Text_MayDefeat:
 	.string "Yikes!\n"
 	.string "You're better than I expected!$"
-
-RustboroCity_Text_MayGiveStarter:
-	.string "MAY: Oh, that's right!\n"
-	.string "Before I forget…\p"
-	.string "My dad asked me to give you this\n"
-	.string "POKéMON.\p"
-	.string "He wants you to raise it for your\n"
-	.string "POKéDEX research!$"
-
-RustboroCity_Text_BrendanGiveStarter:
-	.string "BRENDAN: Oh, right!\n"
-	.string "I almost forgot.\p"
-	.string "My dad asked me to give you this\n"
-	.string "POKéMON.\p"
-	.string "He wants you to raise it for your\n"
-	.string "POKéDEX research.$"
-
-RustboroCity_Text_PlayerReceivedStarter:
-	.string "{PLAYER} received {STR_VAR_1}!$"
 
 RustboroCity_Text_MayMrBrineyHint:
 	.string "MAY: Oh, by the way, MR. BRINEY, who\n"

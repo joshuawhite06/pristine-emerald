@@ -615,8 +615,14 @@ MAY: ...want to battle?                         (vanilla)
 - FLAG_RECEIVED_RUSTBORO_STARTER (vanilla's unused flag 0x21), so it's given once.
 - Saves from vanilla that already met or beat the rival get it the next time
   they talk to them in Rustboro.
-- Full party: sent to the PC (standard message). Party and PC full: "no more
-  room", flag stays clear, try again later.
+- Where: vanilla's first meeting after the PokéNav happens either in Rustboro
+  or, if the player walks past her, outside Mr. Briney's cottage on Route 104
+  (also reached from Briney's house). Both encounters give the gift, from one
+  shared script (`data/scripts/rival_starter_gift.inc`).
+- Full party: sent to the PC (standard message). Party and all PC boxes full:
+  "no more room", flag stays clear, and the rival offers it again next time
+  you talk to her. Known limit: once she leaves that spot for good, a player
+  who had 420 Pokémon at that moment misses the gift.
 - Status: implemented; `test/cases/test_starters.py`.
 
 ## Third starter
@@ -674,7 +680,9 @@ Rules:
 - A vanilla save already past Mr. Stone's reward can talk to him again and
   receive the starter once.
 - Full party: the starter goes to the PC like other gift Pokémon. Party and
-  boxes full: he keeps it until there's room.
+  boxes full: "no more room"; he keeps it until you come back (he never
+  leaves Devon Corp). Bag full on the vanilla-save path: vanilla's "bag is
+  full", and the whole reward waits.
 - The Route 119 rival encounter is unchanged.
 - Status: implemented. FLAG_RECEIVED_MR_STONE_STARTER is vanilla's unused
   flag 0x22. Tests: `test/cases/test_mr_stone.py`.
