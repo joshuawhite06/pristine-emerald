@@ -69,6 +69,6 @@ The 5 Rare Candies are dropped. Mr. Stone gives the third Hoenn starter
 instead (plan.md §11, "Decision: Mr. Stone gives the third starter"), plus the
 Exp. Share when Birch's gift never happened.
 
-Status: the Birch gift is implemented; Mr. Stone still gives 5 Rare Candies in
-the code until the starter gift replaces them.
+Status: implemented (Birch's gift: `test/cases/test_exp_share.py`; Mr.
+Stone: `test/cases/test_mr_stone.py`).
 Test fixture: `test/fixtures/saves/route103-before-lab.sav`.

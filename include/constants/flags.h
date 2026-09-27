@@ -45,7 +45,7 @@
 
 #define FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH 0x20 // pristine-emerald (unused in vanilla)
 #define FLAG_RECEIVED_RUSTBORO_STARTER 0x21 // pristine-emerald (unused in vanilla)
-#define FLAG_UNUSED_0x022    0x22 // Unused Flag
+#define FLAG_RECEIVED_MR_STONE_STARTER 0x22 // pristine-emerald (unused in vanilla)
 #define FLAG_UNUSED_0x023    0x23 // Unused Flag
 #define FLAG_UNUSED_0x024    0x24 // Unused Flag
 #define FLAG_UNUSED_0x025    0x25 // Unused Flag

@@ -676,6 +676,8 @@ Rules:
 - Full party: the starter goes to the PC like other gift Pokémon. Party and
   boxes full: he keeps it until there's room.
 - The Route 119 rival encounter is unchanged.
+- Status: implemented. FLAG_RECEIVED_MR_STONE_STARTER is vanilla's unused
+  flag 0x22. Tests: `test/cases/test_mr_stone.py`.
 
 Timeline:
 

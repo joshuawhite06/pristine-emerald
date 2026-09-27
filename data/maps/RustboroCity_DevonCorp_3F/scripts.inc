@@ -155,36 +155,79 @@ RustboroCity_DevonCorp_3F_EventScript_MrStone::
 	release
 	end
 
+@ pristine-emerald: the reward is the last remaining Hoenn starter (plan.md
+@ §11). The vanilla Exp. Share is only given when Birch's never happened
+@ (saves from vanilla, or a full bag at the lab). FLAG_RECEIVED_EXP_SHARE
+@ still marks the letter reward as handled; the starter has its own flag, so
+@ saves already past the vanilla reward can come back for it.
 RustboroCity_DevonCorp_3F_EventScript_GiveExpShare::
 	msgbox RustboroCity_DevonCorp_3F_Text_ThankYouForDeliveringLetter, MSGBOX_DEFAULT
-	goto_if_set FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH, RustboroCity_DevonCorp_3F_EventScript_GiveRareCandies
+	goto_if_set FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH, RustboroCity_DevonCorp_3F_EventScript_RewardIsStarter
 	giveitem ITEM_EXP_SHARE
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_EXP_SHARE
 	msgbox RustboroCity_DevonCorp_3F_Text_ExplainExpShare, MSGBOX_DEFAULT
-	closemessage
-	applywaitmovement VAR_LAST_TALKED, Common_Movement_FaceOriginalDirection
-	release
-	end
+	goto RustboroCity_DevonCorp_3F_EventScript_GiveStarter
 
-@ pristine-emerald: Birch already gave an Exp. Share; thank the player with
-@ Rare Candies. FLAG_RECEIVED_EXP_SHARE still marks the reward as given.
-RustboroCity_DevonCorp_3F_EventScript_GiveRareCandies::
-	giveitem ITEM_RARE_CANDY, 5
-	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
+RustboroCity_DevonCorp_3F_EventScript_RewardIsStarter::
 	setflag FLAG_RECEIVED_EXP_SHARE
-	msgbox RustboroCity_DevonCorp_3F_Text_ExplainRareCandy, MSGBOX_DEFAULT
-	closemessage
-	applywaitmovement VAR_LAST_TALKED, Common_Movement_FaceOriginalDirection
-	release
-	end
+	goto RustboroCity_DevonCorp_3F_EventScript_GiveStarter
 
 RustboroCity_DevonCorp_3F_EventScript_MrStoneAfterFavor::
+	goto_if_unset FLAG_RECEIVED_MR_STONE_STARTER, RustboroCity_DevonCorp_3F_EventScript_GiveStarter
 	msgbox RustboroCity_DevonCorp_3F_Text_NotFamiliarWithTrends, MSGBOX_DEFAULT
+	goto RustboroCity_DevonCorp_3F_EventScript_MrStoneEnd
+
+RustboroCity_DevonCorp_3F_EventScript_GiveStarter::
+	msgbox RustboroCity_DevonCorp_3F_Text_HoldingOntoThisPokemon, MSGBOX_DEFAULT
+	@ VAR_STARTER_MON: 0 Treecko, 1 Torchic, 2 Mudkip; the rival has the next one.
+	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_TREECKO
+	call_if_eq VAR_STARTER_MON, 0, RustboroCity_DevonCorp_3F_EventScript_StarterIsTorchic
+	call_if_eq VAR_STARTER_MON, 1, RustboroCity_DevonCorp_3F_EventScript_StarterIsMudkip
+	givemon VAR_TEMP_TRANSFERRED_SPECIES, 5
+	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PARTY, RustboroCity_DevonCorp_3F_EventScript_StarterToParty
+	goto_if_eq VAR_RESULT, MON_GIVEN_TO_PC, RustboroCity_DevonCorp_3F_EventScript_StarterToPC
+	msgbox gText_NoMoreRoomForPokemon, MSGBOX_DEFAULT
+	goto RustboroCity_DevonCorp_3F_EventScript_MrStoneEnd
+
+RustboroCity_DevonCorp_3F_EventScript_StarterIsTorchic::
+	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_TORCHIC
+	return
+
+RustboroCity_DevonCorp_3F_EventScript_StarterIsMudkip::
+	setvar VAR_TEMP_TRANSFERRED_SPECIES, SPECIES_MUDKIP
+	return
+
+RustboroCity_DevonCorp_3F_EventScript_StarterToParty::
+	call RustboroCity_DevonCorp_3F_EventScript_StarterFanfare
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, RustboroCity_DevonCorp_3F_EventScript_StarterDone
+	call Common_EventScript_GetGiftMonPartySlot
+	call Common_EventScript_NameReceivedPartyMon
+	goto RustboroCity_DevonCorp_3F_EventScript_StarterDone
+
+RustboroCity_DevonCorp_3F_EventScript_StarterToPC::
+	call RustboroCity_DevonCorp_3F_EventScript_StarterFanfare
+	msgbox gText_NicknameThisPokemon, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, RustboroCity_DevonCorp_3F_EventScript_StarterSentToPC
+	call Common_EventScript_NameReceivedBoxMon
+RustboroCity_DevonCorp_3F_EventScript_StarterSentToPC::
+	call Common_EventScript_TransferredToPC
+RustboroCity_DevonCorp_3F_EventScript_StarterDone::
+	setflag FLAG_RECEIVED_MR_STONE_STARTER
+RustboroCity_DevonCorp_3F_EventScript_MrStoneEnd::
 	closemessage
 	applywaitmovement VAR_LAST_TALKED, Common_Movement_FaceOriginalDirection
 	release
 	end
+
+RustboroCity_DevonCorp_3F_EventScript_StarterFanfare::
+	bufferspeciesname STR_VAR_1, VAR_TEMP_TRANSFERRED_SPECIES
+	playfanfare MUS_OBTAIN_ITEM
+	message RustboroCity_DevonCorp_3F_Text_PlayerReceivedStarter
+	waitmessage
+	waitfanfare
+	return
 
 RustboroCity_DevonCorp_3F_EventScript_Employee::
 	lock
@@ -265,11 +308,15 @@ RustboroCity_DevonCorp_3F_Text_ExplainExpShare:
 	.string "I would say EXP. SHARE is quite useful\n"
 	.string "for raising weak POKéMON.$"
 
-RustboroCity_DevonCorp_3F_Text_ExplainRareCandy:
-	.string "MR. STONE: A RARE CANDY raises the\n"
-	.string "level of a POKéMON by one.\p"
-	.string "They should help your POKéMON\n"
-	.string "grow strong.$"
+RustboroCity_DevonCorp_3F_Text_HoldingOntoThisPokemon:
+	.string "MR. STONE: I've been holding onto this\n"
+	.string "POKéMON, but I don't think I have time\l"
+	.string "to raise it.\p"
+	.string "It would be happier traveling with\n"
+	.string "a TRAINER like you.$"
+
+RustboroCity_DevonCorp_3F_Text_PlayerReceivedStarter:
+	.string "{PLAYER} received {STR_VAR_1}!$"
 
 RustboroCity_DevonCorp_3F_Text_NotFamiliarWithTrends:
 	.string "MR. STONE: Since my youth, I've immersed\n"
