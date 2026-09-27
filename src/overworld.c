@@ -66,6 +66,9 @@
 #include "constants/songs.h"
 #include "constants/trainer_hill.h"
 #include "constants/weather.h"
+#if PRISTINE_TEST
+#include "personality_tools.h"
+#endif
 
 struct CableClubPlayer
 {
@@ -1484,6 +1487,9 @@ void CB2_OverworldBasic(void)
 void CB2_Overworld(void)
 {
     bool32 fading = (gPaletteFade.active != 0);
+#if PRISTINE_TEST
+    PersonalityTest_Poll();
+#endif
     if (fading)
         SetVBlankCallback(NULL);
     OverworldBasic();

@@ -937,6 +937,11 @@ Change Nature
 Toggle Shiny
 ```
 
+> **Status (2026-09-27):** the centralized PID change and its tests are done
+> (`src/personality_tools.c`, `docs/pristine/personality-safety.md`,
+> `test/cases/test_personality.py`, mutation-tested with `test/mutants.py`).
+> Change Nature and Toggle Shiny are not in the menu yet.
+
 ## Phase 5
 
 Add missing Ruby/Sapphire Hoenn encounters.

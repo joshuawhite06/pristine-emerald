@@ -179,6 +179,7 @@ SECTIONS {
         src/contest_util.o(.text);
         src/script_pokemon_util.o(.text);
         src/pokemon_services.o(.text);
+        src/personality_tools.o(.text);
         src/field_poison.o(.text);
         src/pokemon_size_record.o(.text);
         src/give_gift_ribbon_to_party.o(.text);
@@ -559,6 +560,7 @@ SECTIONS {
         src/contest_util.o(.rodata);
         src/script_pokemon_util.o(.rodata);
         src/pokemon_services.o(.rodata);
+        src/personality_tools.o(.rodata);
         src/pokemon_size_record.o(.rodata)
         src/give_gift_ribbon_to_party.o(.rodata);
         src/fldeff_misc.o(.rodata);

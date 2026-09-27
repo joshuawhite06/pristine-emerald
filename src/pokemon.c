@@ -2811,6 +2811,68 @@ static u16 CalculateBoxMonChecksum(struct BoxPokemon *boxMon)
     return checksum;
 }
 
+// pristine-emerald: give a BoxPokemon a new personality value while keeping
+// every other byte of its data. The four substructures are moved to the order
+// the new PID selects, the checksum is recomputed and the data re-encrypted
+// with the new key. The result is decrypted again and compared with the
+// original; on any mismatch (or if the checksum was already wrong) the
+// Pokémon is restored unchanged and FALSE is returned.
+// Used by src/personality_tools.c; see docs/pristine/personality-safety.md.
+static bool8 BytesEqual(const void *a, const void *b, u32 size)
+{
+    const u8 *x = a;
+    const u8 *y = b;
+    u32 i;
+
+    for (i = 0; i < size; i++)
+        if (x[i] != y[i])
+            return FALSE;
+    return TRUE;
+}
+
+bool8 SetBoxMonPersonalityPreservingData(struct BoxPokemon *boxMon, u32 personality)
+{
+    struct BoxPokemon backup = *boxMon;
+    struct BoxPokemon check;
+    union PokemonSubstruct substructs[4];
+    u32 i;
+    bool8 ok;
+
+    DecryptBoxMon(boxMon);
+    if (CalculateBoxMonChecksum(boxMon) != boxMon->checksum)
+    {
+        *boxMon = backup;
+        return FALSE;
+    }
+    for (i = 0; i < 4; i++)
+        substructs[i] = *GetSubstruct(boxMon, boxMon->personality, i);
+
+    boxMon->personality = personality;
+    for (i = 0; i < 4; i++)
+        *GetSubstruct(boxMon, personality, i) = substructs[i];
+    boxMon->checksum = CalculateBoxMonChecksum(boxMon);
+    EncryptBoxMon(boxMon);
+
+    // Verify: decrypting with the new key must give back the same data, and
+    // the unencrypted header (OT ID through markings, and the unknown field)
+    // must be untouched.
+    check = *boxMon;
+    DecryptBoxMon(&check);
+    ok = check.personality == personality
+      && CalculateBoxMonChecksum(&check) == check.checksum
+      && BytesEqual(&check.otId, &backup.otId, (u8 *)&backup.checksum - (u8 *)&backup.otId)
+      && check.unknown == backup.unknown;
+    for (i = 0; ok && i < 4; i++)
+        ok = BytesEqual(GetSubstruct(&check, personality, i), &substructs[i], sizeof(substructs[i]));
+
+    if (!ok)
+    {
+        *boxMon = backup;
+        return FALSE;
+    }
+    return TRUE;
+}
+
 #define CALC_STAT(base, iv, ev, statIndex, field)               \
 {                                                               \
     u8 baseStat = gSpeciesInfo[species].base;                   \
