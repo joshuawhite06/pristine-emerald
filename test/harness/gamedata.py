@@ -179,6 +179,36 @@ class Rom:
             moves.append((entry >> 9, entry & 0x1FF))
             ptr += 2
 
+    def egg_moves(self, species):
+        """Egg moves listed under exactly this species (gEggMoves)."""
+        table = self.table("gEggMoves")
+        words = struct.unpack(f"<{len(table) // 2}H", table)
+        out, i = [], 0
+        while i < len(words) and words[i] != 0xFFFF:
+            if words[i] == species + 20000:
+                i += 1
+                while i < len(words) and words[i] != 0xFFFF and words[i] < 20000:
+                    out.append(words[i])
+                    i += 1
+                return out
+            i += 1
+        return out
+
+    def tutor_moves(self, species):
+        """Move tutor moves this species can learn (gTutorMoves, sTutorLearnsets)."""
+        moves = struct.unpack("<30H", self.table("gTutorMoves")[:60])
+        mask = struct.unpack("<I", self.read(self.syms.addr("sTutorLearnsets") + 4 * species, 4))[0]
+        return [m for i, m in enumerate(moves) if mask & (1 << i)]
+
+    def pre_evolution(self, species):
+        evo = self.syms.addr("gEvolutionTable")
+        for s in range(1, 412):
+            for k in range(5):
+                method, _, target = struct.unpack("<HHH", self.read(evo + s * 40 + k * 8, 6))
+                if method and target == species:
+                    return s
+        return None
+
     def species_name(self, species):
         return decode_text(self.read(self.syms.addr("gSpeciesNames") + species * 11, 11))
 
