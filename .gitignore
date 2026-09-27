@@ -55,6 +55,7 @@ __pycache__/
 .serena/
 # strider writes heard-song lists next to ROMs it runs.
 *.songs
+*:Zone.Identifier
 # In-game save fixtures are tracked (upstream ignores *.sa*); savestates are
 # ROM-specific and stay local.
 !/test/fixtures/saves/*.sav

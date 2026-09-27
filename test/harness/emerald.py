@@ -83,6 +83,24 @@ class Emerald(Session):
     def sb2_addr(self):
         return self.u32(self.syms.addr("gSaveBlock2Ptr"))
 
+    def bag(self):
+        """{pocket: {item_id: quantity}}, as in savefile.decode_bag."""
+        key = self.u32(self.sb2_addr() + savefile.SB2_ENCRYPTION_KEY)
+        return savefile.decode_bag(self.read(self.sb1_addr(), 0x8F8), key)
+
+    def item_count(self, item_id):
+        return sum(pocket.get(item_id, 0) for pocket in self.bag().values())
+
+    def advance_dialogue(self, max_frames=6000, step=30):
+        """Press A every `step` frames until the player is free to move again."""
+        return self.poll_until(
+            lambda s: not s.field_controls_locked(), max_frames, step=step, press="A", description="dialogue ends"
+        )
+
+    def field_controls_locked(self):
+        """True while a script or menu holds the player (e.g. dialogue)."""
+        return bool(self.u8(self.syms.addr("sLockFieldControls")))
+
     def flag(self, flag_id):
         byte = self.u8(self.sb1_addr() + savefile.SB1_FLAGS + flag_id // 8)
         return bool(byte & (1 << (flag_id % 8)))

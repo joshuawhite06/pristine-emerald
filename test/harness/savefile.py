@@ -45,6 +45,29 @@ SB2_ENCRYPTION_KEY = 0xAC
 
 VARS_START = 0x4000
 
+# Bag pockets in SaveBlock1: (offset, slots). Quantities are XORed with the
+# low half of SaveBlock2's encryptionKey.
+BAG_POCKETS = {
+    "items": (0x560, 30),
+    "key_items": (0x5D8, 30),
+    "poke_balls": (0x650, 16),
+    "tms_hms": (0x690, 64),
+    "berries": (0x790, 46),
+}
+
+
+def decode_bag(sb1, encryption_key):
+    """{pocket: {item_id: quantity}} from SaveBlock1 bytes (at least 0x8F8)."""
+    bag = {}
+    for pocket, (offset, slots) in BAG_POCKETS.items():
+        items = {}
+        for i in range(slots):
+            item, quantity = struct.unpack_from("<HH", sb1, offset + 4 * i)
+            if item:
+                items[item] = items.get(item, 0) + (quantity ^ (encryption_key & 0xFFFF))
+        bag[pocket] = items
+    return bag
+
 
 def section_checksum(data, size):
     total = sum(struct.unpack_from(f"<{size // 4}I", data, 0)) & 0xFFFFFFFF
@@ -178,6 +201,13 @@ class SaveFile:
             return self.continue_warp
         return self.location[:2]
 
+    def set_continue_warp(self, group, num, x, y):
+        """Make CONTINUE warp to (x, y) on a map, loading it fresh (the
+        mechanism the game uses for saves made in link rooms). Lets a test
+        start anywhere from any save."""
+        struct.pack_into("<bbbxhh", self.sb1, SB1_CONTINUE_WARP, group, num, -1, x, y)
+        self.sb2[SB2_SPECIAL_SAVE_WARP_FLAGS] |= 1
+
     def party(self):
         count = self.sb1[SB1_PARTY_COUNT]
         return gen3.decode_party(bytes(self.sb1[SB1_PARTY : SB1_PARTY + 6 * gen3.MON_SIZE]), count)
@@ -187,6 +217,13 @@ class SaveFile:
         self.sb1[SB1_PARTY_COUNT] = len(mons)
         blob = b"".join(m.encode() for m in mons).ljust(6 * gen3.MON_SIZE, b"\x00")
         self.sb1[SB1_PARTY : SB1_PARTY + len(blob)] = blob
+
+    @property
+    def encryption_key(self):
+        return struct.unpack_from("<I", self.sb2, SB2_ENCRYPTION_KEY)[0]
+
+    def bag(self):
+        return decode_bag(self.sb1, self.encryption_key)
 
     def flag(self, flag_id):
         return bool(self.sb1[SB1_FLAGS + flag_id // 8] & (1 << (flag_id % 8)))

@@ -183,6 +183,21 @@ class Session:
                 if done >= max_frames:
                     raise
 
+    def poll_until(self, condition, max_frames, step=10, press=None, hold=2, description="condition"):
+        """Advance `step` frames at a time (pressing `press` at the start of
+        each step) until condition(self) is true. Coarser than run_until, but
+        works for anything Python can compute from RAM (e.g. through pointers
+        that move). Returns frames advanced; raises ConditionTimeout."""
+        done = 0
+        while not condition(self):
+            if done >= max_frames:
+                shot = self.dir / f"timeout-{self._calls:04d}.png"
+                self.screenshot(shot)
+                raise ConditionTimeout(f"{description}: not reached within {max_frames} frames (see {shot})")
+            self.run(step, [(0, press, hold)] if press else ())
+            done += step
+        return done
+
     def screenshot(self, path):
         """Save a PNG of the next frame without advancing the session."""
         if self.state is None:

@@ -21,18 +21,24 @@ Where you save matters: CONTINUE resumes exactly there, facing the same way.
 
 | name | where | used for |
 |---|---|---|
-| `route103-before-lab` | new game: just after the first rival battle on Route 103, before walking back to Birch's lab for the Pokédex | Pokédex + Poké Balls + Exp. Share event |
 | `rustboro-before-rival` | Rustboro City, just before the rival battle (after the gym, when May/Brendan stops you) | second starter gift |
 | `route119-before-rival` | Route 119, after the Weather Institute, just before the rival battle | third starter gift |
-| `devon-before-mr-stone` | Devon Corp 3F after delivering the letter to Steven, before talking to Mr. Stone | Exp. Share reward replaced by Rare Candies |
 | `late-game` | any late save you have (lots of flags, boxes in use, many items) | vanilla save compatibility |
 
 Anything in Littleroot works for the Birch's lab trade-back NPC; test Pokémon
 (Kadabra, Seadra with Dragon Scale, Clamperl, Unown, Spinda, shinies...) are
 put into a party by editing the save, not caught by hand.
 
+A save doesn't have to be made where a test happens:
+`SaveFile.set_continue_warp()` makes CONTINUE load any map at any position
+(the game's own mechanism for saves made in link rooms), and story flags and
+vars can be set the same way. `test_exp_share.py` reaches Mr. Stone like this.
+Real saves are still better for story beats with many interlocking flags.
+
 ### Present
 
+- `route103-before-lab.sav`: outside Birch's lab after the Route 103 rival
+  battle, before the Pokédex. Party: Mudkip L8.
 - `pc-front.sav`: Oldale Town Pokémon Center 1F, facing the PC. Party: Mudkip L6.
 
 ## State fixtures (`states/<name>.state`, local only)
