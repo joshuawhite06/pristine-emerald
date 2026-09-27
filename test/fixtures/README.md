@@ -21,7 +21,6 @@ Where you save matters: CONTINUE resumes exactly there, facing the same way.
 
 | name | where | used for |
 |---|---|---|
-| `pc-front` | any Pokémon Center 1F, standing right below the PC, facing it; party with a two-ability species (e.g. Ralts, Zigzagoon, Wingull), one mon knowing 4 moves incl. an HM | PC Pokémon Services menu, all party edits |
 | `route103-before-lab` | new game: just after the first rival battle on Route 103, before walking back to Birch's lab for the Pokédex | Pokédex + Poké Balls + Exp. Share event |
 | `rustboro-before-rival` | Rustboro City, just before the rival battle (after the gym, when May/Brendan stops you) | second starter gift |
 | `route119-before-rival` | Route 119, after the Weather Institute, just before the rival battle | third starter gift |
@@ -34,6 +33,7 @@ put into a party by editing the save, not caught by hand.
 
 ### Present
 
+- `pc-front.sav`: Oldale Town Pokémon Center 1F, facing the PC. Party: Mudkip L6.
 - `petalburg-pc2f.sav`: saved in the link Trade Center; CONTINUE puts the
   player on Petalburg Pokémon Center 2F. Party: Mudkip L10, Wurmple L3,
   Ralts L4.
