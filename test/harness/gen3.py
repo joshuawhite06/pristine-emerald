@@ -63,6 +63,25 @@ def unown_form(pid):
     return letter % 28
 
 
+def nature_modifiers(nature_id):
+    """Multipliers (x10) for atk, def, spe, spa, spd."""
+    mods = [10] * 5
+    up, down = nature_id // 5, nature_id % 5
+    if up != down:
+        mods[up], mods[down] = 11, 9
+    return mods
+
+
+def calc_stats(base, ivs, evs, level, nature_id):
+    """Gen III stats [hp, atk, def, spe, spa, spd] (base/ivs/evs in that order)."""
+    def core(i):
+        return (2 * base[i] + ivs[i] + evs[i] // 4) * level // 100
+
+    hp = core(0) + level + 10 if base[0] != 1 else 1  # Shedinja
+    mods = nature_modifiers(nature_id)
+    return [hp] + [(core(i) + 5) * mods[i - 1] // 10 for i in range(1, 6)]
+
+
 def checksum(secure_plain):
     return sum(struct.unpack("<24H", secure_plain)) & 0xFFFF
 

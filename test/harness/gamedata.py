@@ -113,6 +113,15 @@ def map_id(name):
     raise KeyError(f"unknown map: {name}")
 
 
+def encode_text(text, length):
+    """Encode `text` with the game's charmap, 0xFF-terminated and padded."""
+    reverse = {}
+    for code, char in charmap().items():
+        reverse.setdefault(char, code)
+    out = bytes(reverse[c] for c in text)
+    return (out + b"\xff" * length)[:length]
+
+
 def decode_text(data):
     out = []
     table = charmap()
@@ -145,6 +154,30 @@ class Rom:
             "gender_ratio": raw[0x10],
             "abilities": list(raw[0x16:0x18]),
         }
+
+    def growth_rate(self, species):
+        base = self.syms.addr("gSpeciesInfo") + species * SPECIES_INFO_SIZE
+        return self.read(base + 0x13, 1)[0]
+
+    def exp_for_level(self, species, level):
+        """Experience at the start of `level` (gExperienceTables[rate][level])."""
+        table = self.syms.addr("gExperienceTables") + self.growth_rate(species) * 101 * 4
+        return struct.unpack("<I", self.read(table + level * 4, 4))[0]
+
+    def move_pp(self, move):
+        """Base PP of a move (struct BattleMove is 12 bytes, pp at +4)."""
+        return self.read(self.syms.addr("gBattleMoves") + move * 12 + 4, 1)[0]
+
+    def level_up_moves(self, species):
+        """[(level, move)] from the species' level-up learnset."""
+        ptr = struct.unpack("<I", self.read(self.syms.addr("gLevelUpLearnsets") + species * 4, 4))[0]
+        moves = []
+        while True:
+            entry = struct.unpack("<H", self.read(ptr, 2))[0]
+            if entry == 0xFFFF:
+                return moves
+            moves.append((entry >> 9, entry & 0x1FF))
+            ptr += 2
 
     def species_name(self, species):
         return decode_text(self.read(self.syms.addr("gSpeciesNames") + species * 11, 11))

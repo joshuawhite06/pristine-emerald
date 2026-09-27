@@ -8,6 +8,8 @@ from . import gen3, paths, savefile
 from .emu import Session, Watch
 
 CB2_OFFSET = 4  # gMain.callback2
+TASK_SIZE, NUM_TASKS = 0x28, 16  # struct Task: func, isActive, prev, next, priority, data[16]
+MENU_CURSOR_POS = 2  # struct Menu (menu.c): left, top, cursorPos, ...
 BOXES, BOX_SLOTS = 14, 30
 
 
@@ -110,6 +112,68 @@ class Emerald(Session):
         return self.poll_until(
             lambda s: not s.field_controls_locked(), max_frames, step=step, press="A", description="dialogue ends"
         )
+
+    # --- menus ---------------------------------------------------------------
+
+    def active_tasks(self):
+        """Function addresses of the active tasks."""
+        raw = self.sym("gTasks")
+        funcs = []
+        for i in range(NUM_TASKS):
+            func, active = struct.unpack_from("<IB", raw, i * TASK_SIZE)
+            if active:
+                funcs.append(func)
+        return funcs
+
+    def task_active(self, func_name):
+        return self.syms.func(func_name) in self.active_tasks()
+
+    def multichoice_open(self):
+        return self.task_active("Task_HandleMultichoiceInput")
+
+    def yes_no_open(self):
+        return self.task_active("Task_HandleYesNoInput")
+
+    def menu_cursor(self):
+        # sMenu is defined in several files; menu.c's is the 12-byte one.
+        addr = next(a for a, size in self.syms.all("sMenu") if size == 12)
+        return struct.unpack("<b", self.read(addr + MENU_CURSOR_POS, 1))[0]
+
+    def advance_text_until(self, condition, max_frames=3000, description="condition"):
+        """Press A through message boxes until condition(self) holds.
+        Checks before every press, so it stops as soon as a menu opens."""
+        return self.poll_until(condition, max_frames, step=20, press="A", description=description)
+
+    def choose(self, index, max_frames=3000):
+        """Wait for a multichoice menu (pressing A through any text first),
+        move the cursor to `index`, and select it."""
+        self.advance_text_until(lambda s: s.multichoice_open(), max_frames, "multichoice menu")
+        self.run(10)
+        for _ in range(16):
+            cursor = self.menu_cursor()
+            if cursor == index:
+                break
+            self.press("DOWN" if cursor < index else "UP", hold=2, wait=8)
+        else:
+            raise AssertionError(f"menu cursor stuck at {self.menu_cursor()}, wanted {index}")
+        self.press("A", hold=2, wait=10)
+
+    def answer(self, yes, max_frames=3000):
+        """Wait for a YES/NO box (pressing A through text first) and answer."""
+        self.advance_text_until(lambda s: s.yes_no_open(), max_frames, "YES/NO box")
+        self.run(10)
+        self.press("A" if yes else "B", hold=2, wait=10)
+
+    def in_party_menu(self):
+        return self.callback2() == self.syms.func("CB2_UpdatePartyMenu")
+
+    def choose_party_mon(self, slot, max_frames=3000):
+        """Wait for the party menu (pressing A through text first) and pick a slot."""
+        self.advance_text_until(lambda s: s.in_party_menu(), max_frames, "party menu")
+        self.run(30)
+        for _ in range(slot):
+            self.press("DOWN", hold=2, wait=8)
+        self.press("A", hold=2, wait=10)
 
     def field_controls_locked(self):
         """True while a script or menu holds the player (e.g. dialogue)."""
