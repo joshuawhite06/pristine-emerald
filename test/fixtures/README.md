@@ -21,7 +21,6 @@ Where you save matters: CONTINUE resumes exactly there, facing the same way.
 
 | name | where | used for |
 |---|---|---|
-| `late-game` | any late save you have (lots of flags, boxes in use, many items) | vanilla save compatibility |
 
 Anything in Littleroot works for the Birch's lab trade-back NPC; test Pokémon
 (Kadabra, Seadra with Dragon Scale, Clamperl, Unown, Spinda, shinies...) are
@@ -36,6 +35,8 @@ Real saves are still better for story beats with many interlocking flags.
 
 ### Present
 
+- `late-game.sav`: post-game retail playthrough on Route 117, 411 Pokémon in
+  the PC, full bag. Party: Salamence L50, Magcargo L38, Smeargle L100.
 - `rustboro-before-rival.sav`: Rustboro City, facing May (A talks to her),
   after the first badge and the PokéNav. Party: Marshtomp L22.
 - `route103-before-lab.sav`: outside Birch's lab after the Route 103 rival

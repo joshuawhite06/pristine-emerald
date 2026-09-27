@@ -119,6 +119,21 @@ class SaveCompat(unittest.TestCase):
         for key in ("party", "boxes", "bag", "flags", "vars", "map", "money"):
             self.assertEqual(retail[key], hack[key], key)
 
+    def test_late_game_saved_by_the_hack_loads_in_retail(self):
+        # The late-game save (post-game, 411 Pokémon in the PC, full bag)
+        # continued on the hack and saved in-game: retail loads it intact.
+        if not fixtures.exists("save", "late-game"):
+            self.skipTest("needs late-game.sav")
+        game = Emerald.from_save(fixtures.save("late-game"), name="late-hack", cache=False)
+        hack = snapshot(game)
+        self.assertGreater(len(hack["boxes"]), 400)
+        data = game.save_game()
+        retail = snapshot(self.on_vanilla(self.write(data, "late-hack-written"), "late-retail"))
+        self.assertTrue(retail["party_checksums_ok"])
+        self.assertFalse(any(retail["party_bad_eggs"]))
+        for key in ("party", "boxes", "bag", "flags", "vars", "map", "money"):
+            self.assertEqual(retail[key], hack[key], key)
+
     def test_hack_save_round_trips(self):
         data, hack = self.hack_save_with_features()
         again = snapshot(Emerald.from_save(self.write(data, "hack-again"), name="hack-again", cache=False))

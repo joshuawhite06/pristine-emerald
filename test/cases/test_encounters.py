@@ -171,7 +171,7 @@ class EncountersInGame(unittest.TestCase):
         from test.harness.emerald import Emerald
 
         self.rom = gamedata.Rom(test_rom, test_rom.with_suffix(".sym"))
-        self.game = Emerald.from_save(fixtures.saves()[0], name="wild", rom=test_rom, sym=test_rom.with_suffix(".sym"))
+        self.game = Emerald.from_save(fixtures.save("pc-front"), name="wild", rom=test_rom, sym=test_rom.with_suffix(".sym"))
 
     def picks(self, key, method):
         game = self.game
@@ -230,7 +230,7 @@ class RealEncounters(unittest.TestCase):
 
         group, num = gamedata.map_id(map_name)
         x, y = mapdata.grass_patch(self.rom, group, num)
-        sav = savefile.SaveFile.load(fixtures.saves()[0])
+        sav = savefile.SaveFile.load(fixtures.save("pc-front"))
         sav.set_continue_warp(group, num, x, y)
         path = Path(tempfile.mkdtemp(dir=paths.test_out())) / f"{map_name}.sav"
         sav.save(path)

@@ -27,7 +27,7 @@ class BootFromSave(unittest.TestCase):
                 self.assertTrue(all(m.checksum_ok for m in game.party()))
 
     def test_boot_is_deterministic(self):
-        path = fixtures.saves()[0]
+        path = fixtures.save("pc-front")
         a = Emerald.from_save(path, name="determinism-a", cache=False)
         b = Emerald.from_save(path, name="determinism-b", cache=False)
         self.assertEqual(a.frame, b.frame)
@@ -44,17 +44,17 @@ class Harness(unittest.TestCase):
             self.skipTest("no save fixtures")
 
     def test_run_until_stops_on_the_first_matching_frame(self):
-        game = Emerald("run-until", sav=fixtures.saves()[0])
+        game = Emerald("run-until", sav=fixtures.save("pc-front"))
         frames = game.run_until(game.cb2_is("CB2_InitTitleScreen"), 600, inputs=[(300, "START", 2)])
         target = game.syms.func("CB2_InitTitleScreen")
         self.assertEqual(game.callback2(), target)
         # One frame earlier it must not have held yet.
-        earlier = Emerald("run-until-earlier", sav=fixtures.saves()[0])
+        earlier = Emerald("run-until-earlier", sav=fixtures.save("pc-front"))
         earlier.run(frames - 1, inputs=[(300, "START", 2)])
         self.assertNotEqual(earlier.callback2(), target)
 
     def test_ram_write_takes_effect(self):
-        game = Emerald.from_save(fixtures.saves()[0])
+        game = Emerald.from_save(fixtures.save("pc-front"))
         mons = game.party()
         mons[0].box.friendship = (mons[0].box.friendship + 1) % 256
         game.set_party_mon(0, mons[0])
