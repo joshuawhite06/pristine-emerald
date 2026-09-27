@@ -26,6 +26,9 @@ FortreeCity_Gym_EventScript_Winona::
 	end
 
 FortreeCity_Gym_EventScript_WinonaReplayDefeated::
+	@ As after a first win, the gym's trainers stop challenging the player.
+	setvar VAR_0x8008, 6
+	call Common_EventScript_SetGymTrainers
 	msgbox FortreeCity_Gym_Text_WinonaPostBattle, MSGBOX_DEFAULT
 	release
 	end

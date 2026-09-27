@@ -84,6 +84,9 @@ MauvilleCity_Gym_EventScript_Wattson::
 	end
 
 MauvilleCity_Gym_EventScript_WattsonReplayDefeated::
+	@ As after a first win, the gym's trainers stop challenging the player.
+	setvar VAR_0x8008, 3
+	call Common_EventScript_SetGymTrainers
 	msgbox MauvilleCity_Gym_Text_WattsonPostBattle, MSGBOX_DEFAULT
 	release
 	end

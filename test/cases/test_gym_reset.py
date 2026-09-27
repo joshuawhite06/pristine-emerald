@@ -225,12 +225,14 @@ class GymReset(unittest.TestCase):
         game.poll_until(lambda s: s.in_overworld() and not s.field_controls_locked(), 20000, step=30,
                         press="A", description="battle won and talk over")
         self.assertTrue(game.party()[0].hp > 0, "lost the battle")
-        # Only the leader counts as beaten again. Beating a trainer with a Match
-        # Call entry also registers them (vanilla), which isn't a reward.
+        # The leader counts as beaten again and, as after a first win, so does
+        # every trainer in the gym (they stop challenging the player). Beating
+        # a trainer with a Match Call entry also registers them (vanilla).
         name = leader.rsplit("_", 1)[0]
         allowed = {C(f"FLAG_REGISTERED_{name}")}
+        beaten = {trainer_flag(t) for t in gym_trainers(num) + [f"TRAINER_{leader}"]}
         changed = flag_bits(game.all_flags()) ^ flags_before
-        self.assertEqual(changed - allowed, {trainer_flag(f"TRAINER_{leader}")})
+        self.assertEqual(changed - allowed, beaten - flags_before)
         self.assertTrue(flag_bits(game.all_flags()) >= flags_before, "a flag was cleared")
         self.assertEqual(saved_vars(game), vars_before)
         self.assertGreater(game.money(), money_before)

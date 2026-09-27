@@ -89,6 +89,9 @@ SootopolisCity_Gym_1F_EventScript_Juan::
 	end
 
 SootopolisCity_Gym_1F_EventScript_JuanReplayDefeated::
+	@ As after a first win, the gym's trainers stop challenging the player.
+	setvar VAR_0x8008, 8
+	call Common_EventScript_SetGymTrainers
 	msgbox SootopolisCity_Gym_1F_Text_JuanPostBattle, MSGBOX_DEFAULT
 	release
 	end

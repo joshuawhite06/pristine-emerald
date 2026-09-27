@@ -272,6 +272,9 @@ Azurill's); then every move tutor move its species can learn. Nothing it
 already knows, no repeats, at most 60. TMs stay out. The Fallarbor Move Tutor
 (Heart Scale) is unchanged: the extra moves are switched on only while the
 PC service runs. Tests: `test/cases/test_pokemon_services.py`.
+Update (2026-09-27, playtest): egg moves unlock with PROF. BIRCH's call after
+the 6th badge and tutor moves with his call after the 8th (`src/birch_calls.c`);
+before that the Move Reminder lists level-up moves only.
 
 The feature is intended to replace the inconvenience of traveling to the normal Move Reminder NPC.
 
@@ -942,8 +945,9 @@ door, which reloads the map (positions, facing).
   first-time team and pays prize money; the victory script then only says the
   leader's usual post-battle line: no badge, no TM, no story changes. Norman,
   whose battle depends on VAR_PETALBURG_GYM_STATE, gets the same through a
-  replay branch that leaves the state alone. Post-game Match Call rematches
-  work as in vanilla.
+  replay branch that leaves the state alone. As after a first win, the
+  rematch victory marks the gym's trainers beaten, so they stop challenging
+  the player. Post-game Match Call rematches work as in vanilla.
 - No new flags or vars. `data/scripts/gym_reset.inc` and the gym scripts.
   Tests: `test/cases/test_gym_reset.py`.
 - Petalburg's greeter stays after the Champion (vanilla hides him then): the

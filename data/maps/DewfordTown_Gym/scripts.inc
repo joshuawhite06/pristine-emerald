@@ -146,6 +146,9 @@ DewfordTown_Gym_EventScript_Brawly::
 	end
 
 DewfordTown_Gym_EventScript_BrawlyReplayDefeated::
+	@ As after a first win, the gym's trainers stop challenging the player.
+	setvar VAR_0x8008, 2
+	call Common_EventScript_SetGymTrainers
 	msgbox DewfordTown_Gym_Text_BrawlyPostBattle, MSGBOX_DEFAULT
 	release
 	end

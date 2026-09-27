@@ -58,6 +58,9 @@ MossdeepCity_Gym_EventScript_TateAndLiza::
 	end
 
 MossdeepCity_Gym_EventScript_TateAndLizaReplayDefeated::
+	@ As after a first win, the gym's trainers stop challenging the player.
+	setvar VAR_0x8008, 7
+	call Common_EventScript_SetGymTrainers
 	msgbox MossdeepCity_Gym_Text_TateAndLizaPostBattle, MSGBOX_DEFAULT
 	release
 	end

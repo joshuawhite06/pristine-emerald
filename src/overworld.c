@@ -1506,6 +1506,7 @@ void CB2_Overworld(void)
 #if PRISTINE_TEST
     PersonalityTest_Poll();
     WildTest_Poll();
+    BerryTest_Poll();
 #endif
     if (fading)
         SetVBlankCallback(NULL);
