@@ -36,8 +36,8 @@ Real saves are still better for story beats with many interlocking flags.
 
 ### Present
 
-- `rustboro-before-rival.sav`: Rustboro City, four steps above the rival
-  battle trigger, after the first badge and the PokéNav. Party: Marshtomp L18.
+- `rustboro-before-rival.sav`: Rustboro City, facing May (A talks to her),
+  after the first badge and the PokéNav. Party: Marshtomp L22.
 - `route103-before-lab.sav`: outside Birch's lab after the Route 103 rival
   battle, before the Pokédex. Party: Mudkip L8.
 - `pc-front.sav`: Oldale Town Pokémon Center 1F, facing the PC. Party: Mudkip L6.

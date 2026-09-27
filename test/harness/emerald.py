@@ -8,6 +8,7 @@ from . import gen3, paths, savefile
 from .emu import Session, Watch
 
 CB2_OFFSET = 4  # gMain.callback2
+BOXES, BOX_SLOTS = 14, 30
 
 
 def _digest(*parts):
@@ -73,6 +74,19 @@ class Emerald(Session):
     def party(self):
         count = self.sym("gPlayerPartyCount")[0]
         return gen3.decode_party(self.sym("gPlayerParty"), count)
+
+    def box_mons(self):
+        """[(box, slot, BoxMon)] for every occupied PC box slot."""
+        # boxes follow currentBox at 4 (BoxPokemon is word-aligned; the header
+        # comment saying 0x0001 is wrong, boxNames at 0x8344 confirms 4).
+        base = self.u32(self.syms.addr("gPokemonStoragePtr")) + 4
+        raw = self.read(base, BOXES * BOX_SLOTS * gen3.BOX_MON_SIZE)
+        found = []
+        for i in range(BOXES * BOX_SLOTS):
+            chunk = raw[i * gen3.BOX_MON_SIZE : (i + 1) * gen3.BOX_MON_SIZE]
+            if chunk[0x13] & 0x2:  # hasSpecies
+                found.append((i // BOX_SLOTS, i % BOX_SLOTS, gen3.decode_box(chunk)[0]))
+        return found
 
     def set_party_mon(self, index, mon):
         self.write(self.syms.addr("gPlayerParty") + index * gen3.MON_SIZE, mon.encode())
