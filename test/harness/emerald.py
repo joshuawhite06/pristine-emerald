@@ -1,6 +1,7 @@
 """Emerald-specific helpers on top of emu.Session."""
 
 import hashlib
+import os
 import struct
 from pathlib import Path
 
@@ -66,9 +67,12 @@ class Emerald(Session):
         s = cls(name or fixture.stem, rom=rom, sym=sym, sav=sav)
         s.boot_to_overworld()
         if cache:
+            # Atomic writes: parallel test processes may boot the same fixture.
             cache_dir.mkdir(parents=True, exist_ok=True)
-            cached_sav.write_bytes(s.battery())
-            s.save_state(cached)
+            for path, data in ((cached_sav, s.battery()), (cached, bytes(s.state))):
+                tmp = path.with_name(f"{path.name}.{os.getpid()}.tmp")
+                tmp.write_bytes(data)
+                os.replace(tmp, path)
         return s
 
     # --- live game data (RAM) ---------------------------------------------

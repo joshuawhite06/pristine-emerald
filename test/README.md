@@ -1,7 +1,8 @@
 # Test harness
 
 Python (stdlib only) driving [strider-gba](../../strider-gba)'s headless
-`strider-harness` (mGBA). Run with `scripts/test.sh`.
+`strider-harness` (mGBA). Run with `scripts/test.sh` (builds, then runs every test in its own process,
+half the CPUs at a time: `test/run.py`, `-k` to filter, `-j` for jobs).
 
 ```
 test/
