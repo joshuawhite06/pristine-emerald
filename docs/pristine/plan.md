@@ -946,8 +946,9 @@ door, which reloads the map (positions, facing).
   work as in vanilla.
 - No new flags or vars. `data/scripts/gym_reset.inc` and the gym scripts.
   Tests: `test/cases/test_gym_reset.py`.
-- Note: vanilla hides Petalburg's greeter once the Champion is beaten, so
-  Petalburg can only be reset before that (open question).
+- Petalburg's greeter stays after the Champion (vanilla hides him then): the
+  gym clears his hide flag on load once the game is cleared, which also brings
+  him back on saves that beat the Champion before the hack.
 
 ---
 

@@ -38,8 +38,17 @@ PetalburgCity_Gym_EventScript_UnlockAllDoors::
 PetalburgCity_Gym_OnTransition:
 	call_if_eq VAR_PETALBURG_GYM_STATE, 1, PetalburgCity_Gym_EventScript_MoveWallyToEntrance
 	call_if_lt VAR_PETALBURG_GYM_STATE, 6, PetalburgCity_Gym_EventScript_MoveNormanToEntrance
+	@ pristine-emerald: the greeter stays after the Champion (vanilla hides him
+	@ in the Champion's room), so the gym can still be reset (gym_reset.inc).
+	@ Also brings him back for saves that beat the Champion before the hack.
+	@ Before the rematch check: its DontMoveNormanToFront path ends the script.
+	call_if_set FLAG_SYS_GAME_CLEAR, PetalburgCity_Gym_EventScript_ShowGreeter
 	call_if_set FLAG_SYS_GAME_CLEAR, PetalburgCity_Gym_EventScript_CheckNormanForRematch
 	end
+
+PetalburgCity_Gym_EventScript_ShowGreeter::
+	clearflag FLAG_HIDE_PETALBURG_GYM_GREETER
+	return
 
 PetalburgCity_Gym_EventScript_MoveWallyToEntrance::
 	setobjectxyperm LOCALID_PETALBURG_GYM_WALLY, 5, 108

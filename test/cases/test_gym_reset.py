@@ -138,6 +138,21 @@ class GymReset(unittest.TestCase):
         group, map_num, x, y = game.location()
         self.assertEqual((gamedata.map_name(group, map_num), (x, y)), (folder, DOORS[num]))
 
+    def test_petalburg_greeter_stays_after_the_champion(self):
+        # Vanilla hides him when the Champion is beaten; here he's back, so a
+        # post-game Petalburg reset works (also for saves from vanilla).
+        sav = self.save_for(5, "petalburg-postgame", beaten=True)
+        sav.set_flag(C("FLAG_SYS_GAME_CLEAR"))
+        sav.set_flag(C("FLAG_HIDE_PETALBURG_GYM_GREETER"))  # as vanilla leaves it
+        sav.set_var(C("VAR_PETALBURG_GYM_STATE"), 8)        # post-game
+        game = self.start(sav, 5, object_pos(GYMS[5][0], "_EventScript_GymGuide"), "petalburg-postgame")
+        self.assertFalse(game.flag(C("FLAG_HIDE_PETALBURG_GYM_GREETER")))
+        game.press("A", hold=2, wait=30)
+        game.answer(yes=True)
+        game.poll_until(lambda s: s.in_overworld() and not s.field_controls_locked(), 3000, step=20,
+                        press="A", description="back in the gym")
+        self.assertFalse(game.flag(trainer_flag("TRAINER_NORMAN_1")))
+
     def test_declining_changes_nothing(self):
         folder = GYMS[1][0]
         game = self.start(self.save_for(1, "reset-no", beaten=True), 1,
