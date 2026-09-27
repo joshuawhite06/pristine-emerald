@@ -325,6 +325,10 @@ bool16 ScriptMenu_CreatePCMultichoice(void)
     }
 }
 
+// pristine-emerald: POKéMON SERVICES is the third entry, after the two PCs
+// (data/scripts/pc.inc matches this order).
+static const u8 sText_PokemonServices[] = _("POKéMON SERVICES");
+
 static void CreatePCMultichoice(void)
 {
     u8 x = 8;
@@ -338,6 +342,7 @@ static void CreatePCMultichoice(void)
     {
         pixelWidth = DisplayTextAndGetWidth(sPCNameStrings[i], pixelWidth);
     }
+    pixelWidth = DisplayTextAndGetWidth(sText_PokemonServices, pixelWidth);
 
     if (FlagGet(FLAG_SYS_GAME_CLEAR))
     {
@@ -349,19 +354,20 @@ static void CreatePCMultichoice(void)
     // Include Hall of Fame option if player is champion
     if (FlagGet(FLAG_SYS_GAME_CLEAR))
     {
-        numChoices = 4;
-        windowId = CreateWindowFromRect(0, 0, width, 8);
+        numChoices = 5;
+        windowId = CreateWindowFromRect(0, 0, width, 10);
         SetStandardWindowBorderStyle(windowId, FALSE);
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_HallOfFame, x, 33, TEXT_SKIP_DRAW, NULL);
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, 49, TEXT_SKIP_DRAW, NULL);
+        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_HallOfFame, x, 49, TEXT_SKIP_DRAW, NULL);
+        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, 65, TEXT_SKIP_DRAW, NULL);
     }
     else
     {
-        numChoices = 3;
-        windowId = CreateWindowFromRect(0, 0, width, 6);
+        numChoices = 4;
+        windowId = CreateWindowFromRect(0, 0, width, 8);
         SetStandardWindowBorderStyle(windowId, FALSE);
-        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, 33, TEXT_SKIP_DRAW, NULL);
+        AddTextPrinterParameterized(windowId, FONT_NORMAL, gText_LogOff, x, 49, TEXT_SKIP_DRAW, NULL);
     }
+    AddTextPrinterParameterized(windowId, FONT_NORMAL, sText_PokemonServices, x, 33, TEXT_SKIP_DRAW, NULL);
 
     // Change PC name if player has met Lanette
     if (FlagGet(FLAG_SYS_PC_LANETTE))

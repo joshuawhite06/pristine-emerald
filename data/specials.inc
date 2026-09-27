@@ -540,3 +540,7 @@ gSpecials::
 	def_special RemoveRecordsWindow
 	def_special CloseDeptStoreElevatorWindow
 	def_special TrySetBattleTowerLinkType
+	@ pristine-emerald: POKéMON SERVICES (src/pokemon_services.c)
+	def_special ResetSelectedMonEVs
+	def_special GetSelectedMonAbilityChoice
+	def_special SwitchSelectedMonAbility

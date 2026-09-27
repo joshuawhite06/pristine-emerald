@@ -917,6 +917,13 @@ Move Reminder
 Move Deleter
 ```
 
+> **Status (2026-09-27):** phases 2 and 3 done. POKéMON SERVICES is the third
+> entry in the Pokémon Center PC menu (party Pokémon only), with CHANGE
+> ABILITY, RESET EVs, MOVE REMINDER and MOVE DELETER. The Move Deleter keeps
+> vanilla's guard against forgetting the party's last SURF. Code:
+> `data/scripts/pokemon_services.inc`, `src/pokemon_services.c`; tests:
+> `test/cases/test_pokemon_services.py`.
+
 ## Phase 4
 
 Implement centralized safe PID mutation.

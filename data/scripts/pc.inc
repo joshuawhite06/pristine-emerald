@@ -14,12 +14,16 @@ EventScript_PCMainMenu::
 	goto EventScript_AccessPC
 	end
 
+@ pristine-emerald: POKéMON SERVICES is entry 2 (see CreatePCMultichoice).
+@ Without HALL OF FAME, LOG OFF is entry 3, which EventScript_AccessHallOfFame
+@ turns into LOG OFF (as vanilla did with entry 2).
 EventScript_AccessPC::
 	switch VAR_RESULT
 	case 0, EventScript_AccessPokemonStorage
 	case 1, EventScript_AccessPlayersPC
-	case 2, EventScript_AccessHallOfFame
-	case 3, EventScript_TurnOffPC
+	case 2, EventScript_PokemonServices
+	case 3, EventScript_AccessHallOfFame
+	case 4, EventScript_TurnOffPC
 	case MULTI_B_PRESSED, EventScript_TurnOffPC
 	end
 
