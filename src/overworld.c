@@ -480,6 +480,22 @@ void LoadObjEventTemplatesFromHeader(void)
               gMapHeader.events->objectEventCount * sizeof(struct ObjectEventTemplate));
 }
 
+// pristine-emerald: a save made where this hack added an NPC to the map
+// (e.g. Birch's lab) holds no template for it; fill in the slots the save
+// left empty from the map, keeping every template the save does have.
+static void LoadMissingObjEventTemplates(void)
+{
+    const struct ObjectEventTemplate *mapHeaderObjTemplates = gMapHeader.events->objectEvents;
+    struct ObjectEventTemplate *savObjTemplates = gSaveBlock1Ptr->objectEventTemplates;
+    s32 i;
+
+    for (i = 0; i < gMapHeader.events->objectEventCount && i < OBJECT_EVENT_TEMPLATES_COUNT; i++)
+    {
+        if (savObjTemplates[i].localId == 0 && mapHeaderObjTemplates[i].localId != 0)
+            savObjTemplates[i] = mapHeaderObjTemplates[i];
+    }
+}
+
 void LoadSaveblockObjEventScripts(void)
 {
     const struct ObjectEventTemplate *mapHeaderObjTemplates = gMapHeader.events->objectEvents;
@@ -1727,7 +1743,10 @@ void CB2_ContinueSavedGame(void)
     else if (trainerHillMapId != 0 && trainerHillMapId != TRAINER_HILL_ENTRANCE)
         LoadTrainerHillFloorObjectEventScripts();
     else
+    {
         LoadSaveblockObjEventScripts();
+        LoadMissingObjEventTemplates();
+    }
 
     UnfreezeObjectEvents();
     DoTimeBasedEvents();

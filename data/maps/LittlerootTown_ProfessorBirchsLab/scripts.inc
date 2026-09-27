@@ -2,7 +2,16 @@ LittlerootTown_ProfessorBirchsLab_MapScripts::
 	map_script MAP_SCRIPT_ON_TRANSITION, LittlerootTown_ProfessorBirchsLab_OnTransition
 	map_script MAP_SCRIPT_ON_WARP_INTO_MAP_TABLE, LittlerootTown_ProfessorBirchsLab_OnWarp
 	map_script MAP_SCRIPT_ON_FRAME_TABLE, LittlerootTown_ProfessorBirchsLab_OnFrame
+	map_script MAP_SCRIPT_ON_RESUME, LittlerootTown_ProfessorBirchsLab_OnResume
 	.byte 0
+
+@ pristine-emerald: on a save made in the lab before this hack, the
+@ trade-back scientist has no saved object yet; LoadMissingObjEventTemplates
+@ (overworld.c) restores his template and this puts him in place right away
+@ (addobject reuses him if he's already there).
+LittlerootTown_ProfessorBirchsLab_OnResume:
+	addobject LOCALID_BIRCHS_LAB_TRADE_BACK
+	end
 
 	@ State descriptions for VAR_DEX_UPGRADE_JOHTO_STARTER_STATE
 	@ 1: Beat Elite Four, Dex upgrade ready

@@ -1091,6 +1091,21 @@ Add Birch Lab trade-back NPC.
 
 Regression-test vanilla save compatibility.
 
+> **Status (2026-09-27): done** (`test/cases/test_save_compat.py`, plus
+> `test_rom.py` and `test_boot.py`):
+> - vanilla saves load in the hack exactly as in retail: party, PC boxes, bag,
+>   flags, vars, map and money identical in RAM after CONTINUE (every fixture);
+> - a save written by the hack (START > SAVE after Toggle Shiny, Change Nature,
+>   the TM Machine and the hack's flags) loads in retail: no Bad Eggs, valid
+>   checksums, party/boxes/bag/flags/vars/money as saved; and it round-trips in
+>   the hack;
+> - save layout and structure sizes unchanged (test_rom);
+> - found and fixed: a retail save made inside Birch's lab had no trade-back
+>   scientist (CONTINUE restores the map's NPCs from the save). The hack now
+>   fills template slots the save left empty from the map
+>   (`LoadMissingObjEventTemplates`, overworld.c) and the lab puts him in place
+>   on resume.
+
 ---
 
 # 17. Definition of Done
@@ -1098,49 +1113,49 @@ Regression-test vanilla save compatibility.
 The first complete version should satisfy:
 
 ```text
-[ ] Vanilla Emerald save loads correctly
+[x] Vanilla Emerald save loads correctly (test_save_compat, test_boot)
 
-[ ] Existing story progression is intact
+[~] Existing story progression is intact: every story event the hack touches is tested (lab, Rustboro/Route 104 rival, Mr. Stone, gyms); a full playthrough is left to beta testing
 
-[ ] PC contains Pokémon Services
+[x] PC contains Pokémon Services (test_pokemon_services)
 
-[ ] Nature can be changed safely
+[x] Nature can be changed safely (test_personality, test_pokemon_services)
 
-[ ] Ability can be switched when species supports two abilities
+[x] Ability can be switched when species supports two abilities (test_pokemon_services)
 
-[ ] EVs can be reset
+[x] EVs can be reset (test_pokemon_services)
 
-[ ] Natural level-up moves can be relearned
+[x] Natural level-up moves can be relearned (plus egg and tutor moves; test_pokemon_services)
 
-[ ] Moves, including HMs, can be deleted
+[x] Moves, including HMs, can be deleted (last-SURF guard kept; test_pokemon_services)
 
-[ ] Shiny status can be toggled safely
+[x] Shiny status can be toggled safely (test_personality, test_pokemon_services)
 
-[ ] Nature editing never unexpectedly changes gender
+[x] Nature editing never unexpectedly changes gender (test_personality, mutation-tested)
 
-[ ] Shiny editing never unexpectedly changes gender
+[x] Shiny editing never unexpectedly changes gender (test_personality, mutation-tested)
 
-[ ] Ability remains stable across PID changes
+[x] Ability remains stable across PID changes (test_personality)
 
-[ ] Wurmple evolution branch is preserved
+[x] Wurmple evolution branch is preserved (test_personality)
 
-[ ] Unown form is preserved
+[x] Unown form is preserved (test_personality; impossible shiny cases fail safely)
 
-[ ] Spinda warning exists
+[x] Spinda warning exists (test_pokemon_services)
 
-[ ] Pokémon data does not become corrupted
+[x] Pokémon data does not become corrupted (verified rewrite with rollback; test_personality, test_save_compat)
 
-[ ] Missing Ruby/Sapphire Hoenn species are catchable
+[x] Missing Ruby/Sapphire Hoenn species are catchable (test_encounters)
 
-[ ] All three Hoenn starters are obtainable
+[x] All three Hoenn starters are obtainable (test_starters, test_mr_stone)
 
-[ ] Trade evolutions can be performed through Birch Lab NPC
+[x] Trade evolutions can be performed through Birch Lab NPC (and the PC; test_tradeback)
 
-[ ] Held trade-evolution items are consumed correctly
+[x] Held trade-evolution items are consumed correctly (test_tradeback)
 
-[ ] No unrelated Emerald mechanics are changed
+[~] No unrelated Emerald mechanics are changed: encounter tables diffed exactly against retail and saves compared both ways; not provable exhaustively, beta testing covers the rest
 
-[ ] No save structures are expanded or reordered
+[x] No save structures are expanded or reordered (test_rom, test_save_compat)
 ```
 
 ---
