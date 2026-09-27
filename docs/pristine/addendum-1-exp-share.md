@@ -35,3 +35,27 @@ replace Exp. Share with 5 rare candies
 No save-format changes are required.
 
 This feature is optional and should be implemented only after the core QoL features unless specifically prioritized.
+
+---
+
+### Decision (2026-09-27): Professor Birch gives it
+
+Birch gives the Exp. Share himself, right after the Pokédex, instead of
+May/Brendan giving it with the Poké Balls (he's the one handing out
+equipment, and the rival is standing right next to him):
+
+```text
+PROF. BIRCH: ...take this POKéDEX              (vanilla)
+Obtained POKéDEX                                (vanilla)
+PROF. BIRCH: The POKéDEX is a high-tech tool... (vanilla)
+PROF. BIRCH: Oh, and one more thing.
+             Take this, too!                    (new)
+Obtained EXP. SHARE                             (new: giveitem ITEM_EXP_SHARE, 1)
+PROF. BIRCH: Have a POKéMON hold the EXP. SHARE,
+             and it'll get a share of the EXP.
+             Points even if it doesn't battle!  (new)
+May/Brendan gives 5 Poké Balls                  (vanilla, unchanged)
+```
+
+Mr. Stone's later reward is still replaced by 5 Rare Candies.
+Test fixture: `test/fixtures/saves/route103-before-lab.sav`.
