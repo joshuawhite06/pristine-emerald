@@ -550,6 +550,49 @@ Encounter rates should feel consistent with vanilla Emerald.
 
 Do not replace important existing Emerald encounters unnecessarily.
 
+## Decision (2026-09-27): placement rules
+
+Scope is exactly these five base forms. A check over vanilla Emerald's wild
+tables and evolutions confirms they're the only Hoenn species with no way to
+get them (everything else missing from the wild is a starter, gift, fossil,
+breeding baby, Feebas or legendary). Masquerain and Medicham come by
+evolution.
+
+Source: Ruby/Sapphire's own encounter tables (pret/pokeruby
+`src/data/wild_encounters.json`), same maps. Gen III slots have fixed rates
+(grass 20/20/10/10/10/10/5/5/4/4/1/1 %, surfing 60/30/5/4/1 %).
+
+Rules:
+
+1. **Nothing disappears.** Every species catchable on a map (per method) in
+   vanilla Emerald stays catchable there. Slots are taken only from species
+   that have more than one slot in that table.
+2. **At least 5%.** Each added species gets at least 5% on every map/method
+   where it's placed, taking slots from the most common species there.
+3. Levels: the Emerald slot's level range is kept.
+
+Per species:
+
+| Species | Where (as in RS) | How |
+|---|---|---|
+| Roselia | Route 117 grass | RS slots (30%, from Oddish, which keeps its other slots) |
+| Meditite | Mt. Pyre exterior; Victory Road B1F | RS slots (30%, from Shuppet; 5%, from Mawile) |
+| Zangoose | Route 114 grass | shares Seviper's slots: both at least 5%; Lombre untouched |
+| Lunatone | Meteor Falls (1F 1R, 1F 2R, B1F 1R, B1F 2R), grass and surfing | alternates slots with Solrock: both at least 5% in each table |
+| Surskit | Routes 102, 114, 117, 120 grass (RS had 1%) | at least 5%, from a common species with several slots on that route. RS's 1% surfing slots are only used where a 5% slot can be taken without removing a species |
+
+Tests (planned):
+
+- exact diff of the built ROM's encounter tables against the retail ROM: only
+  the planned slots change, no species leaves any map, each added species is
+  at the planned rate (at least 5%);
+- every Hoenn dex species is obtainable (wild or by evolution, plus an
+  explicit list of non-wild sources);
+- the game's own slot picker run thousands of times per changed map in the
+  test build, histogram against the expected rates;
+- real encounters: a save teleported onto the route walks in the grass until
+  each added species appears in battle, at a level in the slot's range.
+
 ---
 
 # 11. Remaining Hoenn Starters
