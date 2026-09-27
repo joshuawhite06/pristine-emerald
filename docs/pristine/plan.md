@@ -576,12 +576,18 @@ Per species:
 | Species | Where (as in RS) | How |
 |---|---|---|
 | Roselia | Route 117 grass | RS slots (30%, from Oddish, which keeps its other slots) |
-| Meditite | Mt. Pyre exterior; Victory Road B1F | RS slots (30%, from Shuppet; 5%, from Mawile) |
-| Zangoose | Route 114 grass | shares Seviper's slots: both at least 5%; Lombre untouched |
+| Meditite | Mt. Pyre exterior; Victory Road B1F | Mt. Pyre: RS slots (30%, from Shuppet). Victory Road: 5% from Golbat (RS's slots were both of Mawile's, which would remove it) |
+| Zangoose | Route 114 grass | 10%, from Swablu (the most common there); Seviper untouched at 9% |
 | Lunatone | Meteor Falls (1F 1R, 1F 2R, B1F 1R, B1F 2R), grass and surfing | alternates slots with Solrock: both at least 5% in each table |
 | Surskit | Routes 102, 114, 117, 120 grass (RS had 1%) | at least 5%, from a common species with several slots on that route. RS's 1% surfing slots are only used where a 5% slot can be taken without removing a species |
 
-Tests (planned):
+Status (2026-09-27): implemented as 25 slot changes in
+`src/data/wild_encounters.json`; the exact list is `PLANNED` in
+`test/cases/test_encounters.py`. Surskit is 5% in grass on Routes 102, 114,
+117 and 120 and 5% surfing on Routes 102, 111, 114, 117 and 120 (from Marill,
+which keeps 94%). Lunatone takes every other Solrock slot in Meteor Falls.
+
+Tests:
 
 - exact diff of the built ROM's encounter tables against the retail ROM: only
   the planned slots change, no species leaves any map, each added species is
@@ -592,6 +598,8 @@ Tests (planned):
   test build, histogram against the expected rates;
 - real encounters: a save teleported onto the route walks in the grass until
   each added species appears in battle, at a level in the slot's range.
+
+All implemented in `test/cases/test_encounters.py`.
 
 ---
 

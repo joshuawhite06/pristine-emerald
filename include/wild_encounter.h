@@ -28,6 +28,10 @@ struct WildPokemonHeader
 
 extern const struct WildPokemonHeader gWildMonHeaders[];
 
+#if PRISTINE_TEST
+void WildTest_Poll(void);
+#endif
+
 void DisableWildEncounters(bool8 disabled);
 bool8 StandardWildEncounter(u16 curMetatileBehavior, u16 prevMetatileBehavior);
 bool8 SweetScentWildEncounter(void);

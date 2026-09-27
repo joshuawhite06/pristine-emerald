@@ -455,6 +455,69 @@ static bool8 TryGenerateWildMon(const struct WildPokemonInfo *wildMonInfo, u8 ar
     return TRUE;
 }
 
+#if PRISTINE_TEST
+// Test builds only (make PRISTINE_TEST=1): the harness asks for N slot picks
+// on a map's land or water table, made with the game's own slot and level
+// choice, and gets back per-slot counts, species and the levels rolled.
+#define WILD_TEST_REQUEST 0x444C4957 // "WILD"
+#define WILD_TEST_DONE    0x454E4F44 // "DONE"
+
+struct WildTestRequest
+{
+    u32 magic;
+    u8 mapGroup;
+    u8 mapNum;
+    u8 area;     // WILD_AREA_LAND or WILD_AREA_WATER
+    u8 found;    // written back: TRUE if the map has that table
+    u32 count;
+    u16 slotCounts[NUM_LAND_MONS_ENCOUNTER_SLOTS];
+    u16 species[NUM_LAND_MONS_ENCOUNTER_SLOTS];
+    u8 minLevel[NUM_LAND_MONS_ENCOUNTER_SLOTS];
+    u8 maxLevel[NUM_LAND_MONS_ENCOUNTER_SLOTS];
+};
+
+EWRAM_DATA struct WildTestRequest gWildTestRequest = {0};
+
+void WildTest_Poll(void)
+{
+    struct WildTestRequest *req = &gWildTestRequest;
+    const struct WildPokemonInfo *info = NULL;
+    u32 i;
+
+    if (req->magic != WILD_TEST_REQUEST)
+        return;
+    for (i = 0; gWildMonHeaders[i].mapGroup != MAP_GROUP(MAP_UNDEFINED); i++)
+    {
+        if (gWildMonHeaders[i].mapGroup == req->mapGroup && gWildMonHeaders[i].mapNum == req->mapNum)
+        {
+            info = req->area == WILD_AREA_WATER ? gWildMonHeaders[i].waterMonsInfo : gWildMonHeaders[i].landMonsInfo;
+            break;
+        }
+    }
+    for (i = 0; i < NUM_LAND_MONS_ENCOUNTER_SLOTS; i++)
+    {
+        req->slotCounts[i] = 0;
+        req->species[i] = 0;
+        req->minLevel[i] = 0xFF;
+        req->maxLevel[i] = 0;
+    }
+    req->found = info != NULL;
+    for (i = 0; info != NULL && i < req->count; i++)
+    {
+        u8 slot = req->area == WILD_AREA_WATER ? ChooseWildMonIndex_WaterRock() : ChooseWildMonIndex_Land();
+        u8 level = ChooseWildMonLevel(&info->wildPokemon[slot]);
+
+        req->slotCounts[slot]++;
+        req->species[slot] = info->wildPokemon[slot].species;
+        if (level < req->minLevel[slot])
+            req->minLevel[slot] = level;
+        if (level > req->maxLevel[slot])
+            req->maxLevel[slot] = level;
+    }
+    req->magic = WILD_TEST_DONE;
+}
+#endif
+
 static u16 GenerateFishingWildMon(const struct WildPokemonInfo *wildMonInfo, u8 rod)
 {
     u8 wildMonIndex = ChooseWildMonIndex_Fishing(rod);

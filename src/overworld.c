@@ -1489,6 +1489,7 @@ void CB2_Overworld(void)
     bool32 fading = (gPaletteFade.active != 0);
 #if PRISTINE_TEST
     PersonalityTest_Poll();
+    WildTest_Poll();
 #endif
     if (fading)
         SetVBlankCallback(NULL);
