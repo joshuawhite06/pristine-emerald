@@ -52,6 +52,7 @@ prefabs.json
 # Local toolchain from scripts/bootstrap.sh.
 /.toolchain/
 __pycache__/
+.serena/
 # In-game save fixtures are tracked (upstream ignores *.sa*); savestates are
 # ROM-specific and stay local.
 !/test/fixtures/saves/*.sav
