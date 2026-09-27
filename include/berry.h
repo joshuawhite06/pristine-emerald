@@ -34,4 +34,8 @@ struct BerryCrushBerryData {
 
 extern const struct BerryCrushBerryData gBerryCrush_BerryData[];
 
+#if PRISTINE_TEST
+void BerryTest_Poll(void);
+#endif
+
 #endif // GUARD_BERRY_H

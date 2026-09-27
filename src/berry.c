@@ -23,6 +23,7 @@ static u8 CalcBerryYieldInternal(u16 max, u16 min, u8 water);
 static u8 CalcBerryYield(struct BerryTree *tree);
 static u8 GetBerryCountByBerryTreeId(u8 id);
 static u16 GetStageDurationByBerryType(u8);
+static u16 GetGrowthStageDuration(u8);
 
 //.rodata
 static const u8 sBerryDescriptionPart1_Cheri[] = _("Blooms with delicate pretty flowers.");
@@ -1102,11 +1103,12 @@ void BerryTreeTimeUpdate(s32 minutes)
                         break;
                     }
                     time -= tree->minutesUntilNextStage;
-                    tree->minutesUntilNextStage = GetStageDurationByBerryType(tree->berry);
+                    tree->minutesUntilNextStage = GetGrowthStageDuration(tree->berry);
                     if (!BerryTreeGrow(tree))
                         break;
+                    // pristine-emerald: ripe berries stay as long as in vanilla
                     if (tree->stage == BERRY_STAGE_BERRIES)
-                        tree->minutesUntilNextStage *= 4;
+                        tree->minutesUntilNextStage = GetStageDurationByBerryType(tree->berry) * 4;
                 }
             }
         }
@@ -1119,12 +1121,13 @@ void PlantBerryTree(u8 id, u8 berry, u8 stage, bool8 allowGrowth)
 
     *tree = gBlankBerryTree;
     tree->berry = berry;
-    tree->minutesUntilNextStage = GetStageDurationByBerryType(berry);
+    tree->minutesUntilNextStage = GetGrowthStageDuration(berry);
     tree->stage = stage;
     if (stage == BERRY_STAGE_BERRIES)
     {
         tree->berryYield = CalcBerryYield(tree);
-        tree->minutesUntilNextStage *= 4;
+        // pristine-emerald: ripe berries stay as long as in vanilla
+        tree->minutesUntilNextStage = GetStageDurationByBerryType(berry) * 4;
     }
 
     // Stop growth, to keep tree at this stage until the player has seen it
@@ -1233,13 +1236,14 @@ static u8 CalcBerryYieldInternal(u16 max, u16 min, u8 water)
     }
 }
 
+// pristine-emerald: one more berry per harvest than vanilla (TODO.md).
 static u8 CalcBerryYield(struct BerryTree *tree)
 {
     const struct Berry *berry = GetBerryInfo(tree->berry);
     u8 min = berry->minYield;
     u8 max = berry->maxYield;
 
-    return CalcBerryYieldInternal(max, min, BerryTreeGetNumStagesWatered(tree));
+    return CalcBerryYieldInternal(max, min, BerryTreeGetNumStagesWatered(tree)) + 1;
 }
 
 static u8 GetBerryCountByBerryTreeId(u8 id)
@@ -1247,9 +1251,18 @@ static u8 GetBerryCountByBerryTreeId(u8 id)
     return gSaveBlock1Ptr->berryTrees[id].berryYield;
 }
 
+// Vanilla stage length in minutes: still used for how long ripe berries stay
+// and when a neglected tree withers.
 static u16 GetStageDurationByBerryType(u8 berry)
 {
     return GetBerryInfo(berry)->stageDuration * 60;
+}
+
+// pristine-emerald: berries grow twice as fast (each growth stage lasts half
+// the vanilla time).
+static u16 GetGrowthStageDuration(u8 berry)
+{
+    return GetBerryInfo(berry)->stageDuration * 30;
 }
 
 void ObjectEventInteractionGetBerryTreeData(void)
@@ -1349,3 +1362,27 @@ void SetBerryTreesSeen(void)
         }
     }
 }
+
+#if PRISTINE_TEST
+// Test builds only (make PRISTINE_TEST=1): the harness sets up berry trees in
+// the save block and asks for BerryTreeTimeUpdate(minutes), the game's own
+// growth code, as if that much time had passed.
+#define BERRY_TEST_REQUEST 0x52524542 // "BERR"
+#define BERRY_TEST_DONE    0x454E4F44 // "DONE"
+
+struct BerryTestRequest
+{
+    u32 magic;
+    s32 minutes;
+};
+
+EWRAM_DATA struct BerryTestRequest gBerryTestRequest = {0};
+
+void BerryTest_Poll(void)
+{
+    if (gBerryTestRequest.magic != BERRY_TEST_REQUEST)
+        return;
+    BerryTreeTimeUpdate(gBerryTestRequest.minutes);
+    gBerryTestRequest.magic = BERRY_TEST_DONE;
+}
+#endif
