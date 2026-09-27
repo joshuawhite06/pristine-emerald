@@ -57,5 +57,9 @@ PROF. BIRCH: Have a POKéMON hold the EXP. SHARE,
 May/Brendan gives 5 Poké Balls                  (vanilla, unchanged)
 ```
 
-Mr. Stone's later reward is still replaced by 5 Rare Candies.
+Mr. Stone's later reward is replaced by 5 Rare Candies, but only when Birch's
+gift happened (FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH, vanilla's unused flag
+0x20). A save from vanilla that is already past the lab, or a full bag at the
+lab, leaves the flag clear, and Mr. Stone gives the Exp. Share as in vanilla,
+so every player gets exactly one.
 Test fixture: `test/fixtures/saves/route103-before-lab.sav`.
