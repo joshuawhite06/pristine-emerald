@@ -73,6 +73,17 @@ To test a feature against specific Pokémon, edit a save fixture's party with
 `savefile.SaveFile` (checksums are fixed on write) or poke `gPlayerParty` via
 `game.set_party_mon()`, instead of playing to them.
 
+## Test build
+
+`scripts/build.sh PRISTINE_TEST=1` builds `pokeemerald_test.gba` (in
+`build_test/`) with `-DPRISTINE_TEST=1`: test-only hooks that let tests call
+game code directly instead of through menus, e.g. `gPersonalityTestRequest`
+(polled by `CB2_Overworld`) runs PID changes on party slots. The release ROM
+contains none of it. `fixtures.require_test_rom()` skips when it isn't built.
+
+`test/mutants.py` plants known bugs in the PID code and checks the tests
+catch each one (see docs/pristine/personality-safety.md).
+
 ## Environment
 
 See `harness/paths.py`: `PE_ROM`/`PE_SYM` (ROM under test), `PE_VANILLA_ROM`,

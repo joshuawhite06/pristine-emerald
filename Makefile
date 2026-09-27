@@ -10,6 +10,15 @@ KEEP_TEMPS  ?= 0
 FILE_NAME := pokeemerald
 BUILD_DIR := build
 
+# pristine-emerald: `make PRISTINE_TEST=1` builds pokeemerald_test.gba with
+# test-only hooks (see test/README.md), in its own build directory (at the
+# same depth as build/: the link step uses ../../ld_script.ld).
+PRISTINE_TEST ?= 0
+ifeq ($(PRISTINE_TEST),1)
+  FILE_NAME := pokeemerald_test
+  BUILD_DIR := build_test
+endif
+
 # Builds the ROM using a modern compiler
 MODERN      ?= 0
 # Compares the ROM to a checksum of the original - only makes sense using when non-modern
@@ -112,7 +121,7 @@ INCLUDE_CPP_ARGS := $(INCLUDE_DIRS:%=-iquote %)
 INCLUDE_SCANINC_ARGS := $(INCLUDE_DIRS:%=-I %)
 
 O_LEVEL ?= 2
-CPPFLAGS := $(INCLUDE_CPP_ARGS) -Wno-trigraphs -DMODERN=$(MODERN)
+CPPFLAGS := $(INCLUDE_CPP_ARGS) -Wno-trigraphs -DMODERN=$(MODERN) -DPRISTINE_TEST=$(PRISTINE_TEST)
 ifeq ($(MODERN),0)
   CPPFLAGS += -I tools/agbcc/include -I tools/agbcc -nostdinc -undef -std=gnu89
   CC1 := tools/agbcc/bin/agbcc$(EXE)

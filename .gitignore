@@ -49,6 +49,7 @@ prefabs.json
 # pristine-emerald
 # Never commit ROMs. roms/ holds the local retail ROM (vanilla.gba) and its symbols.
 /roms/
+/build_test/
 # Local toolchain from scripts/bootstrap.sh.
 /.toolchain/
 __pycache__/

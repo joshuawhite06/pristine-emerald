@@ -56,3 +56,12 @@ def require_vanilla(testcase):
     if not paths.vanilla_rom().exists():
         testcase.skipTest(f"no retail ROM at {paths.vanilla_rom()}")
     return Path(paths.vanilla_rom())
+
+
+def require_test_rom(testcase):
+    """Skip unless the test build (make PRISTINE_TEST=1) and its symbols exist."""
+    require_rom(testcase)
+    rom = paths.test_rom()
+    if not rom.exists() or not rom.with_suffix(".sym").exists():
+        testcase.skipTest(f"test ROM not built ({rom}); run scripts/build.sh PRISTINE_TEST=1")
+    return rom

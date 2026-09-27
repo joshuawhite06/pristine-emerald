@@ -10,6 +10,9 @@ Vanilla-plus Emerald QoL hack on pret/pokeemerald. The spec is
 - Fixtures: in-game saves in `test/fixtures/saves/` (portable across builds).
   Savestates only work on the ROM that made them. The user makes saves on
   request; the wanted list is in `test/fixtures/README.md`.
+- `scripts/test.sh` also builds the test ROM (`PRISTINE_TEST=1`, test-only
+  hooks; never in the release ROM). After changing the PID code, run
+  `python3 test/mutants.py`: every planted bug must be caught.
 - strider-gba (`../strider-gba`) provides the emulator. Don't modify it from
   here; use the snapshot in `.toolchain/bin/`.
 

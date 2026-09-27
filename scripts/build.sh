@@ -5,4 +5,4 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 source scripts/env.sh
 make -j"$(nproc)" "$@"
-make syms
+make syms "$@"

@@ -4,6 +4,7 @@ Everything can be overridden with environment variables:
 
   PE_ROM             ROM under test (default: <repo>/pokeemerald.gba)
   PE_SYM             its symbol file (default: the ROM path with .sym)
+  PE_TEST_ROM        test build with test-only hooks (default: <repo>/pokeemerald_test.gba)
   PE_VANILLA_ROM     retail Emerald, for baseline tests (default: <repo>/roms/vanilla.gba)
   STRIDER_HARNESS    strider-harness binary (default: <repo>/.toolchain/bin/strider-harness)
   PE_TEST_OUT        scratch/output directory (default: <repo>/build/test-out)
@@ -29,6 +30,10 @@ def rom():
 
 def sym():
     return _env_path("PE_SYM", rom().with_suffix(".sym"))
+
+
+def test_rom():
+    return _env_path("PE_TEST_ROM", REPO / "pokeemerald_test.gba")
 
 
 def vanilla_rom():
