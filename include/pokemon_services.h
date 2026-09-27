@@ -10,6 +10,10 @@ extern const u8 gText_ServiceMoveDeleter[];
 extern const u8 gText_ServiceToggleShiny[];
 extern const u8 gText_ServiceTradeEvolution[];
 
+extern bool8 gMoveReminderAllMoves;
+void EnableMoveReminderAllMoves(void);
+void DisableMoveReminderAllMoves(void);
+u8 AppendMoveReminderExtraMoves(struct Pokemon *mon, u16 *moves, u8 numMoves);
 void ResetSelectedMonEVs(void);
 void GetSelectedMonAbilityChoice(void);
 void SwitchSelectedMonAbility(void);

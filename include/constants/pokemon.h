@@ -256,6 +256,10 @@
 // Evolution 'modes,' for GetEvolutionTargetSpecies
 #define EVO_MODE_NORMAL     0
 #define EVO_MODE_TRADE      1
+
+// pristine-emerald: the PC's Move Reminder lists level-up, egg and tutor
+// moves; at most this many (the relearner menu has one more row, CANCEL).
+#define MAX_MOVE_REMINDER_MOVES 60
 #define EVO_MODE_ITEM_USE   2
 #define EVO_MODE_ITEM_CHECK 3 // If an Everstone is being held, still want to show that the stone *could* be used on that Pokémon to evolve
 

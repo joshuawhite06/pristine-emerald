@@ -254,36 +254,89 @@ class Services(unittest.TestCase):
 
     # --- Move Reminder -------------------------------------------------------
 
-    def test_move_reminder_teaches_a_forgotten_level_up_move(self):
-        before = self.mon("SPECIES_RALTS", 20, ["MOVE_GROWL"])
-        game = self.at_pc("reminder", [before])
-        # Oracle: level-up moves at or below its level that it doesn't know.
-        known = set(before.box.moves)
-        expected = []
-        for level, move in self.rom.level_up_moves(before.box.species):
-            if level <= before.level and move not in known and move not in expected:
-                expected.append(move)
+    def reminder_list(self, mon):
+        """Oracle: what the PC's Move Reminder should offer, in order: level-up
+        moves up to its level, then egg moves of its species and every
+        pre-evolution, then move tutor moves; nothing it knows, no repeats."""
+        known = set(mon.box.moves)
+        out = []
 
+        def add(move):
+            if move and move not in known and move not in out and len(out) < 60:
+                out.append(move)
+
+        species = mon.box.species
+        for level, move in self.rom.level_up_moves(species):
+            if level <= mon.level:
+                add(move)
+        stage = species
+        while stage:
+            for move in self.rom.egg_moves(stage):
+                add(move)
+            stage = self.rom.pre_evolution(stage)
+        for move in self.rom.tutor_moves(species):
+            add(move)
+        return out
+
+    def open_reminder(self, name, mon):
+        game = self.at_pc(name, [mon])
         self.open_service(game, MOVE_REMINDER)
         game.choose_party_mon(0)
         relearner = game.syms.func_in("CB2_MoveRelearnerMain", "move_relearner")
         game.advance_text_until(lambda s: s.callback2() == relearner, description="relearner")
-        self.assertEqual(game.u16(game.syms.addr("gSpecialVar_0x8005")), len(expected))
         game.run(60)
-        game.press("A", hold=2, wait=40)  # first move in the list
-        game.poll_until(lambda s: s.callback2() != relearner, 3000, step=20, press="A",
-                        description="move taught")
+        return game, relearner
+
+    def teach(self, game, relearner, index):
+        for _ in range(index):
+            game.press("DOWN", hold=2, wait=8)
+        game.press("A", hold=2, wait=40)
+        game.poll_until(lambda s: s.callback2() != relearner, 3000, step=20, press="A", description="move taught")
         self.back_at_services_menu(game)
+        self.assertEqual(game.u8(game.syms.addr("gMoveReminderAllMoves")), 0, "extra moves left switched on")
 
+    def test_move_reminder_lists_level_up_egg_and_tutor_moves(self):
+        mons = [
+            self.mon("SPECIES_RALTS", 20, ["MOVE_GROWL"]),
+            self.mon("SPECIES_MARILL", 20, ["MOVE_TACKLE", "MOVE_DEFENSE_CURL"]),  # Azurill's and Marill's egg moves
+            self.mon("SPECIES_SWAMPERT", 40, ["MOVE_SURF", "MOVE_MUD_SHOT"]),      # Mudkip's egg moves
+        ]
+        for mon in mons:
+            with self.subTest(species=self.rom.species_name(mon.box.species)):
+                expected = self.reminder_list(mon)
+                game, _ = self.open_reminder(f"reminder-list-{mon.box.species}", mon)
+                self.assertEqual(game.u16(game.syms.addr("gSpecialVar_0x8005")), len(expected))
+
+    def test_move_reminder_teaches_a_forgotten_level_up_move(self):
+        before = self.mon("SPECIES_RALTS", 20, ["MOVE_GROWL"])
+        game, relearner = self.open_reminder("reminder-levelup", before)
+        self.teach(game, relearner, 0)
         after = game.party()[0]
-        new_moves = [m for m in after.box.moves if m and m not in known]
-        self.assertEqual(len(new_moves), 1)
-        self.assertIn(new_moves[0], expected)
-        slot = after.box.moves.index(new_moves[0])
-        self.assertEqual(after.box.pp[slot], self.rom.move_pp(new_moves[0]))
+        expected = self.reminder_list(before)[0]
+        self.assertEqual(after.box.moves[:2], [before.box.moves[0], expected])
+        self.assertEqual(after.box.pp[1], self.rom.move_pp(expected))
         self.assert_only_changed(before, after, moves=after.box.moves, pp=after.box.pp)
-        self.assertEqual(after.box.moves[0], before.box.moves[0])
 
+    def test_move_reminder_teaches_an_egg_move(self):
+        before = self.mon("SPECIES_RALTS", 20, ["MOVE_GROWL"])
+        offered = self.reminder_list(before)
+        index = offered.index(C("MOVE_DESTINY_BOND"))  # a Ralts egg move
+        game, relearner = self.open_reminder("reminder-egg", before)
+        self.teach(game, relearner, index)
+        after = game.party()[0]
+        self.assertEqual(after.box.moves[:2], [C("MOVE_GROWL"), C("MOVE_DESTINY_BOND")])
+        self.assert_only_changed(before, after, moves=after.box.moves, pp=after.box.pp)
+
+    def test_move_reminder_teaches_a_tutor_move_from_the_end_of_the_list(self):
+        before = self.mon("SPECIES_MARILL", 20, ["MOVE_TACKLE"])
+        offered = self.reminder_list(before)
+        tutor = self.rom.tutor_moves(before.box.species)
+        self.assertIn(offered[-1], tutor)  # the list ends with tutor moves
+        game, relearner = self.open_reminder("reminder-tutor", before)
+        self.teach(game, relearner, len(offered) - 1)  # scrolls the list
+        after = game.party()[0]
+        self.assertEqual(after.box.moves[:2], [C("MOVE_TACKLE"), offered[-1]])
+        self.assert_only_changed(before, after, moves=after.box.moves, pp=after.box.pp)
 
 if __name__ == "__main__":
     unittest.main()

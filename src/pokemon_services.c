@@ -11,7 +11,16 @@
 #include "pokemon_summary_screen.h"
 #include "string_util.h"
 #include "constants/abilities.h"
+#include "constants/moves.h"
+#include "constants/party_menu.h"
 #include "constants/species.h"
+
+// gEggMoves (src/data/pokemon/egg_moves.h, in daycare.c): species markers
+// are the species + this offset, and the list ends with the terminator.
+extern const u16 gEggMoves[];
+extern const struct Evolution gEvolutionTable[][EVOS_PER_MON];
+#define EGG_MOVES_SPECIES_OFFSET 20000
+#define EGG_MOVES_TERMINATOR 0xFFFF
 
 // The POKéMON SERVICES menu (a scrolling list, SCROLL_MULTI_POKEMON_SERVICES
 // in field_specials.c). Order must match EventScript_PokemonServicesMenu.
@@ -22,6 +31,82 @@ const u8 gText_ServiceMoveReminder[] = _("MOVE REMINDER");
 const u8 gText_ServiceMoveDeleter[] = _("MOVE DELETER");
 const u8 gText_ServiceToggleShiny[] = _("TOGGLE SHINY");
 const u8 gText_ServiceTradeEvolution[] = _("TRADE EVOLUTION");
+
+// --- Move Reminder: level-up moves, plus egg and tutor moves -----------------
+
+// Set while the PC's Move Reminder runs; GetMoveRelearnerMoves and
+// GetNumberOfRelearnableMoves then append AppendMoveReminderExtraMoves. The
+// Fallarbor Move Tutor (Heart Scale) never sets it and stays vanilla.
+EWRAM_DATA bool8 gMoveReminderAllMoves = FALSE;
+
+void EnableMoveReminderAllMoves(void)
+{
+    gMoveReminderAllMoves = TRUE;
+}
+
+void DisableMoveReminderAllMoves(void)
+{
+    gMoveReminderAllMoves = FALSE;
+}
+
+static u8 AddMove(u16 *moves, u8 numMoves, u16 move, const u16 *known)
+{
+    u32 i;
+
+    if (move == MOVE_NONE || numMoves >= MAX_MOVE_REMINDER_MOVES)
+        return numMoves;
+    for (i = 0; i < MAX_MON_MOVES; i++)
+        if (known[i] == move)
+            return numMoves;
+    for (i = 0; i < numMoves; i++)
+        if (moves[i] == move)
+            return numMoves;
+    moves[numMoves] = move;
+    return numMoves + 1;
+}
+
+static u16 GetPreEvolution(u16 species)
+{
+    u32 i, j;
+
+    for (i = 1; i < NUM_SPECIES; i++)
+        for (j = 0; j < EVOS_PER_MON; j++)
+            if (gEvolutionTable[i][j].method != 0 && gEvolutionTable[i][j].targetSpecies == species)
+                return i;
+    return SPECIES_NONE;
+}
+
+// Appends, after the level-up moves already in `moves`: the egg moves of the
+// species and each of its pre-evolutions (the table lists them under the
+// form that hatches), then every move tutor move the species can learn.
+// Skips moves the Pokémon knows and duplicates. Returns the new count.
+u8 AppendMoveReminderExtraMoves(struct Pokemon *mon, u16 *moves, u8 numMoves)
+{
+    u16 known[MAX_MON_MOVES];
+    u16 species = GetMonData(mon, MON_DATA_SPECIES);
+    u32 i, stage;
+
+    for (i = 0; i < MAX_MON_MOVES; i++)
+        known[i] = GetMonData(mon, MON_DATA_MOVE1 + i);
+
+    for (stage = species; stage != SPECIES_NONE; stage = GetPreEvolution(stage))
+    {
+        for (i = 0; gEggMoves[i] != EGG_MOVES_TERMINATOR; i++)
+        {
+            if (gEggMoves[i] != stage + EGG_MOVES_SPECIES_OFFSET)
+                continue;
+            for (i++; gEggMoves[i] != EGG_MOVES_TERMINATOR && gEggMoves[i] < EGG_MOVES_SPECIES_OFFSET; i++)
+                numMoves = AddMove(moves, numMoves, gEggMoves[i], known);
+            break;
+        }
+    }
+
+    for (i = 0; i < TUTOR_MOVE_COUNT; i++)
+        if (CanSpeciesLearnTutorMove(species, i))
+            numMoves = AddMove(moves, numMoves, gTutorMoves[i], known);
+
+    return numMoves;
+}
 
 static struct Pokemon *SelectedMon(void)
 {

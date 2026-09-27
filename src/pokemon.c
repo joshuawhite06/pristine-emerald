@@ -22,6 +22,7 @@
 #include "pokedex.h"
 #include "pokeblock.h"
 #include "pokemon.h"
+#include "pokemon_services.h"
 #include "pokemon_animation.h"
 #include "pokemon_summary_screen.h"
 #include "pokemon_storage_system.h"
@@ -6398,6 +6399,9 @@ u8 GetMoveRelearnerMoves(struct Pokemon *mon, u16 *moves)
         }
     }
 
+    // pristine-emerald: the PC's Move Reminder adds egg and tutor moves.
+    if (gMoveReminderAllMoves)
+        numMoves = AppendMoveReminderExtraMoves(mon, moves, numMoves);
     return numMoves;
 }
 
@@ -6415,7 +6419,7 @@ u8 GetLevelUpMovesBySpecies(u16 species, u16 *moves)
 u8 GetNumberOfRelearnableMoves(struct Pokemon *mon)
 {
     u16 learnedMoves[MAX_MON_MOVES];
-    u16 moves[MAX_LEVEL_UP_MOVES];
+    u16 moves[max(MAX_LEVEL_UP_MOVES, MAX_MOVE_REMINDER_MOVES)]; // pristine-emerald: room for egg/tutor moves
     u8 numMoves = 0;
     u16 species = GetMonData(mon, MON_DATA_SPECIES_OR_EGG, 0);
     u8 level = GetMonData(mon, MON_DATA_LEVEL, 0);
@@ -6452,6 +6456,9 @@ u8 GetNumberOfRelearnableMoves(struct Pokemon *mon)
         }
     }
 
+    // pristine-emerald: the PC's Move Reminder adds egg and tutor moves.
+    if (gMoveReminderAllMoves)
+        numMoves = AppendMoveReminderExtraMoves(mon, moves, numMoves);
     return numMoves;
 }
 

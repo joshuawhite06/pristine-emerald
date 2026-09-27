@@ -260,9 +260,18 @@ No Heart Scale should be required.
 Do not add:
 
 - arbitrary TM moves
-- egg moves
-- tutor moves that Pokémon would not normally relearn
+- ~~egg moves~~ (allowed since 2026-09-27, see below)
+- ~~tutor moves that Pokémon would not normally relearn~~ (allowed, see below)
 - arbitrary move injection
+
+**Decision (2026-09-27): egg and tutor moves too.** The PC's Move Reminder
+lists, in this order: level-up moves up to the Pokémon's level; the egg moves
+of its species and every pre-evolution (the table lists them under the form
+that hatches, e.g. Swampert gets Mudkip's, Marill gets Marill's and
+Azurill's); then every move tutor move its species can learn. Nothing it
+already knows, no repeats, at most 60. TMs stay out. The Fallarbor Move Tutor
+(Heart Scale) is unchanged: the extra moves are switched on only while the
+PC service runs. Tests: `test/cases/test_pokemon_services.py`.
 
 The feature is intended to replace the inconvenience of traveling to the normal Move Reminder NPC.
 

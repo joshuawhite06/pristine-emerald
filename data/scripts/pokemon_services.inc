@@ -170,19 +170,30 @@ EventScript_ServiceResetEVs::
 	goto EventScript_PokemonServicesMenu
 	end
 
-@ --- Move Reminder: the Fallarbor Move Tutor's relearner, no Heart Scale -----
+@ --- Move Reminder: the Fallarbor Move Tutor's relearner, no Heart Scale, ---
+@ --- listing level-up moves, then egg moves, then move tutor moves ----------
+@ Every way out goes through EventScript_ServiceMoveReminderEnd, which turns
+@ the extra moves off again (the Fallarbor Move Tutor stays vanilla).
 
 EventScript_ServiceMoveReminder::
 	msgbox Text_ReminderWhichMon, MSGBOX_DEFAULT
+	special EnableMoveReminderAllMoves
 	special ChooseMonForMoveRelearner
-	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, EventScript_PokemonServicesMenu
+	goto_if_eq VAR_0x8004, PARTY_NOTHING_CHOSEN, EventScript_ServiceMoveReminderEnd
 	special IsSelectedMonEgg
-	goto_if_eq VAR_RESULT, TRUE, EventScript_ServiceEgg
+	goto_if_eq VAR_RESULT, TRUE, EventScript_ServiceMoveReminderEgg
 	goto_if_eq VAR_0x8005, 0, EventScript_ServiceNoMoveToRemember
 	msgbox Text_ReminderWhichMove, MSGBOX_DEFAULT
 	special TeachMoveRelearnerMove
 	goto_if_eq VAR_0x8004, 0, EventScript_ServiceMoveReminder
+EventScript_ServiceMoveReminderEnd::
+	special DisableMoveReminderAllMoves
 	goto EventScript_PokemonServicesMenu
+	end
+
+EventScript_ServiceMoveReminderEgg::
+	special DisableMoveReminderAllMoves
+	goto EventScript_ServiceEgg
 	end
 
 EventScript_ServiceNoMoveToRemember::

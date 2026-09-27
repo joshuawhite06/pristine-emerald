@@ -2063,6 +2063,12 @@ static u16 GetTutorMove(u8 tutor)
     return gTutorMoves[tutor];
 }
 
+// pristine-emerald: for the PC's Move Reminder (src/pokemon_services.c).
+bool8 CanSpeciesLearnTutorMove(u16 species, u8 tutor)
+{
+    return CanLearnTutorMove(species, tutor);
+}
+
 static bool8 CanLearnTutorMove(u16 species, u8 tutor)
 {
     if (sTutorLearnsets[species] & (1 << tutor))
