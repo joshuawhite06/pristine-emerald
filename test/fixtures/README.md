@@ -21,7 +21,6 @@ Where you save matters: CONTINUE resumes exactly there, facing the same way.
 
 | name | where | used for |
 |---|---|---|
-| `rustboro-before-rival` | Rustboro City, just before the rival battle (after the gym, when May/Brendan stops you) | second starter gift |
 | `route119-before-rival` | Route 119, after the Weather Institute, just before the rival battle | third starter gift |
 | `late-game` | any late save you have (lots of flags, boxes in use, many items) | vanilla save compatibility |
 
@@ -37,6 +36,8 @@ Real saves are still better for story beats with many interlocking flags.
 
 ### Present
 
+- `rustboro-before-rival.sav`: Rustboro City, four steps above the rival
+  battle trigger, after the first badge and the PokéNav. Party: Marshtomp L18.
 - `route103-before-lab.sav`: outside Birch's lab after the Route 103 rival
   battle, before the Pokédex. Party: Mudkip L8.
 - `pc-front.sav`: Oldale Town Pokémon Center 1F, facing the PC. Party: Mudkip L6.
