@@ -25,7 +25,15 @@ FortreeCity_Gym_EventScript_Winona::
 	release
 	end
 
+FortreeCity_Gym_EventScript_WinonaReplayDefeated::
+	msgbox FortreeCity_Gym_Text_WinonaPostBattle, MSGBOX_DEFAULT
+	release
+	end
+
 FortreeCity_Gym_EventScript_WinonaDefeated::
+	@ pristine-emerald: a rematch after a gym reset (badge already held):
+	@ no badge, TM or story changes again (data/scripts/gym_reset.inc).
+	goto_if_set FLAG_BADGE06_GET, FortreeCity_Gym_EventScript_WinonaReplayDefeated
 	message FortreeCity_Gym_Text_ReceivedFeatherBadge
 	waitmessage
 	call Common_EventScript_PlayGymBadgeFanfare
@@ -108,6 +116,16 @@ FortreeCity_Gym_EventScript_GymGuide::
 
 FortreeCity_Gym_EventScript_GymGuidePostVictory::
 	msgbox FortreeCity_Gym_Text_GymGuidePostVictory, MSGBOX_DEFAULT
+	@ pristine-emerald: offer to start the challenge over (data/scripts/gym_reset.inc)
+	msgbox Text_GymResetAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, FortreeCity_Gym_EventScript_GymGuideNoReset
+	setvar VAR_0x8008, 6
+	call Common_EventScript_ResetGymChallenge
+	warp MAP_FORTREE_CITY_GYM, 15, 24
+	waitstate
+	end
+
+FortreeCity_Gym_EventScript_GymGuideNoReset::
 	release
 	end
 

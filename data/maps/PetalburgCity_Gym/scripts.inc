@@ -101,6 +101,11 @@ PetalburgCity_Gym_Movement_WallyExitGym:
 PetalburgCity_Gym_EventScript_Norman::
 	lock
 	faceplayer
+	@ pristine-emerald: after a gym reset (badge held, Norman not beaten
+	@ since), battle again without touching the story state.
+	goto_if_unset FLAG_BADGE05_GET, PetalburgCity_Gym_EventScript_NormanStory
+	goto_if_not_defeated TRAINER_NORMAN_1, PetalburgCity_Gym_EventScript_NormanReplay
+PetalburgCity_Gym_EventScript_NormanStory::
 	switch VAR_PETALBURG_GYM_STATE
 	case 2, PetalburgCity_Gym_EventScript_NormanNoBadges
 	case 3, PetalburgCity_Gym_EventScript_NormanOneBadge
@@ -354,6 +359,13 @@ PetalburgCity_Gym_EventScript_GiveEnigmaBerry::
 	giveitem ITEM_ENIGMA_BERRY
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setvar VAR_ENIGMA_BERRY_AVAILABLE, 0
+	release
+	end
+
+PetalburgCity_Gym_EventScript_NormanReplay::
+	msgbox PetalburgCity_Gym_Text_NormanIntro, MSGBOX_DEFAULT
+	trainerbattle_no_intro TRAINER_NORMAN_1, PetalburgCity_Gym_Text_NormanDefeat
+	msgbox PetalburgCity_Gym_Text_DadGoingToKeepTraining, MSGBOX_DEFAULT
 	release
 	end
 
@@ -713,7 +725,10 @@ PetalburgCity_Gym_EventScript_NoAmountOfTrainingIsEnough::
 
 PetalburgCity_Gym_EventScript_SpeedRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_SpeedRoomDoorOpen
 	goto_if_lt VAR_PETALBURG_GYM_STATE, 6, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_SpeedRoomDoorOpen::
 	setvar VAR_0x8008, 7
 	setvar VAR_0x8009, 85
 	msgbox PetalburgCity_Gym_Text_EnterSpeedRoom, MSGBOX_YESNO
@@ -741,7 +756,10 @@ PetalburgCity_Gym_EventScript_DoorLocked::
 @ VAR_0x8008 and VAR_0x8009 below are the x and y coordinates of the warp
 PetalburgCity_Gym_EventScript_AccuracyRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_AccuracyRoomDoorOpen
 	goto_if_lt VAR_PETALBURG_GYM_STATE, 6, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_AccuracyRoomDoorOpen::
 	setvar VAR_0x8008, 1
 	setvar VAR_0x8009, 98
 	msgbox PetalburgCity_Gym_Text_EnterAccuracyRoom, MSGBOX_YESNO
@@ -751,7 +769,10 @@ PetalburgCity_Gym_EventScript_AccuracyRoomDoor::
 
 PetalburgCity_Gym_EventScript_ConfusionRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_ConfusionRoomDoorOpen
 	goto_if_not_defeated TRAINER_RANDALL, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_ConfusionRoomDoorOpen::
 	setvar VAR_0x8008, 7
 	setvar VAR_0x8009, 46
 	msgbox PetalburgCity_Gym_Text_EnterConfusionRoom, MSGBOX_YESNO
@@ -761,7 +782,10 @@ PetalburgCity_Gym_EventScript_ConfusionRoomDoor::
 
 PetalburgCity_Gym_EventScript_LeftDefenseRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_LeftDefenseRoomDoorOpen
 	goto_if_not_defeated TRAINER_RANDALL, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_LeftDefenseRoomDoorOpen::
 	setvar VAR_0x8008, 1
 	setvar VAR_0x8009, 59
 	msgbox PetalburgCity_Gym_Text_EnterDefenseRoom, MSGBOX_YESNO
@@ -771,7 +795,10 @@ PetalburgCity_Gym_EventScript_LeftDefenseRoomDoor::
 
 PetalburgCity_Gym_EventScript_RightDefenseRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_RightDefenseRoomDoorOpen
 	goto_if_not_defeated TRAINER_MARY, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_RightDefenseRoomDoorOpen::
 	setvar VAR_0x8008, 7
 	setvar VAR_0x8009, 59
 	msgbox PetalburgCity_Gym_Text_EnterDefenseRoom, MSGBOX_YESNO
@@ -781,7 +808,10 @@ PetalburgCity_Gym_EventScript_RightDefenseRoomDoor::
 
 PetalburgCity_Gym_EventScript_RecoveryRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_RecoveryRoomDoorOpen
 	goto_if_not_defeated TRAINER_MARY, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_RecoveryRoomDoorOpen::
 	setvar VAR_0x8008, 1
 	setvar VAR_0x8009, 72
 	msgbox PetalburgCity_Gym_Text_EnterRecoveryRoom, MSGBOX_YESNO
@@ -791,7 +821,10 @@ PetalburgCity_Gym_EventScript_RecoveryRoomDoor::
 
 PetalburgCity_Gym_EventScript_LeftStrengthRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_LeftStrengthRoomDoorOpen
 	goto_if_not_defeated TRAINER_PARKER, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_LeftStrengthRoomDoorOpen::
 	setvar VAR_0x8008, 1
 	setvar VAR_0x8009, 20
 	msgbox PetalburgCity_Gym_Text_EnterStrengthRoom, MSGBOX_YESNO
@@ -801,7 +834,10 @@ PetalburgCity_Gym_EventScript_LeftStrengthRoomDoor::
 
 PetalburgCity_Gym_EventScript_RightStrengthRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_RightStrengthRoomDoorOpen
 	goto_if_not_defeated TRAINER_ALEXIA, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_RightStrengthRoomDoorOpen::
 	setvar VAR_0x8008, 7
 	setvar VAR_0x8009, 20
 	msgbox PetalburgCity_Gym_Text_EnterStrengthRoom, MSGBOX_YESNO
@@ -811,7 +847,10 @@ PetalburgCity_Gym_EventScript_RightStrengthRoomDoor::
 
 PetalburgCity_Gym_EventScript_LeftOHKORoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_LeftOHKORoomDoorOpen
 	goto_if_not_defeated TRAINER_ALEXIA, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_LeftOHKORoomDoorOpen::
 	setvar VAR_0x8008, 1
 	setvar VAR_0x8009, 33
 	msgbox PetalburgCity_Gym_Text_EnterOHKORoom, MSGBOX_YESNO
@@ -821,7 +860,10 @@ PetalburgCity_Gym_EventScript_LeftOHKORoomDoor::
 
 PetalburgCity_Gym_EventScript_RightOHKORoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_RightOHKORoomDoorOpen
 	goto_if_not_defeated TRAINER_GEORGE, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_RightOHKORoomDoorOpen::
 	setvar VAR_0x8008, 7
 	setvar VAR_0x8009, 33
 	msgbox PetalburgCity_Gym_Text_EnterOHKORoom, MSGBOX_YESNO
@@ -831,7 +873,10 @@ PetalburgCity_Gym_EventScript_RightOHKORoomDoor::
 
 PetalburgCity_Gym_EventScript_LeftGymLeadersRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_LeftGymLeadersRoomDoorOpen
 	goto_if_not_defeated TRAINER_JODY, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_LeftGymLeadersRoomDoorOpen::
 	setvar VAR_0x8008, 1
 	setvar VAR_0x8009, 7
 	msgbox PetalburgCity_Gym_Text_EnterGymLeadersRoom, MSGBOX_YESNO
@@ -841,7 +886,10 @@ PetalburgCity_Gym_EventScript_LeftGymLeadersRoomDoor::
 
 PetalburgCity_Gym_EventScript_RightGymLeadersRoomDoor::
 	lockall
+	@ pristine-emerald: a beaten gym's doors stay open after a gym reset
+	goto_if_set FLAG_DEFEATED_PETALBURG_GYM, PetalburgCity_Gym_EventScript_RightGymLeadersRoomDoorOpen
 	goto_if_not_defeated TRAINER_BERKE, PetalburgCity_Gym_EventScript_DoorLocked
+PetalburgCity_Gym_EventScript_RightGymLeadersRoomDoorOpen::
 	setvar VAR_0x8008, 7
 	setvar VAR_0x8009, 7
 	msgbox PetalburgCity_Gym_Text_EnterGymLeadersRoom, MSGBOX_YESNO
@@ -1092,6 +1140,16 @@ PetalburgCity_Gym_EventScript_GymGuide::
 
 PetalburgCity_Gym_EventScript_GymGuidePostVictory::
 	msgbox PetalburgCity_Gym_Text_GymGuidePostVictory, MSGBOX_DEFAULT
+	@ pristine-emerald: offer to start the challenge over (data/scripts/gym_reset.inc)
+	msgbox Text_GymResetAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, PetalburgCity_Gym_EventScript_GymGuideNoReset
+	setvar VAR_0x8008, 5
+	call Common_EventScript_ResetGymChallenge
+	warp MAP_PETALBURG_CITY_GYM, 4, 111
+	waitstate
+	end
+
+PetalburgCity_Gym_EventScript_GymGuideNoReset::
 	release
 	end
 

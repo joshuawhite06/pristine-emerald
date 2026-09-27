@@ -7,6 +7,8 @@ DewfordTown_Gym_OnTransition:
 	end
 
 DewfordTown_Gym_EventScript_SetFlashLevel::
+	@ pristine-emerald: a beaten gym stays lit after a gym reset (gym_reset.inc)
+	goto_if_set FLAG_DEFEATED_DEWFORD_GYM, DewfordTown_Gym_EventScript_SetLightsOn
 	goto_if_defeated TRAINER_BRAWLY_1, DewfordTown_Gym_EventScript_SetLightsOn
 	call DewfordTown_Gym_EventScript_CountTrainersDefeated
 	copyvar VAR_0x8001, VAR_0x8000
@@ -53,6 +55,8 @@ DewfordTown_Gym_EventScript_SetFlashLevel7::
 	return
 
 DewfordTown_Gym_EventScript_BrightenRoom::
+	@ pristine-emerald: already fully lit (gym beaten, then reset)
+	goto_if_set FLAG_DEFEATED_DEWFORD_GYM, DewfordTown_Gym_EventScript_NoLightChange
 	call DewfordTown_Gym_EventScript_CountTrainersDefeated
 	nop1
 	goto_if_eq VAR_0x8000, VAR_0x8001, DewfordTown_Gym_EventScript_NoLightChange
@@ -141,7 +145,15 @@ DewfordTown_Gym_EventScript_Brawly::
 	release
 	end
 
+DewfordTown_Gym_EventScript_BrawlyReplayDefeated::
+	msgbox DewfordTown_Gym_Text_BrawlyPostBattle, MSGBOX_DEFAULT
+	release
+	end
+
 DewfordTown_Gym_EventScript_BrawlyDefeated::
+	@ pristine-emerald: a rematch after a gym reset (badge already held):
+	@ no badge, TM or story changes again (data/scripts/gym_reset.inc).
+	goto_if_set FLAG_BADGE02_GET, DewfordTown_Gym_EventScript_BrawlyReplayDefeated
 	call DewfordTown_Gym_EventScript_AnimateFlashFullBrightness
 	message DewfordTown_Gym_Text_ReceivedKnuckleBadge
 	waitmessage
@@ -257,6 +269,16 @@ DewfordTown_Gym_EventScript_GymGuide::
 
 DewfordTown_Gym_EventScript_GymGuidePostVictory::
 	msgbox DewfordTown_Gym_Text_GymGuidePostVictory, MSGBOX_DEFAULT
+	@ pristine-emerald: offer to start the challenge over (data/scripts/gym_reset.inc)
+	msgbox Text_GymResetAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, DewfordTown_Gym_EventScript_GymGuideNoReset
+	setvar VAR_0x8008, 2
+	call Common_EventScript_ResetGymChallenge
+	warp MAP_DEWFORD_TOWN_GYM, 5, 27
+	waitstate
+	end
+
+DewfordTown_Gym_EventScript_GymGuideNoReset::
 	release
 	end
 

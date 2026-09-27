@@ -57,7 +57,15 @@ MossdeepCity_Gym_EventScript_TateAndLiza::
 	release
 	end
 
+MossdeepCity_Gym_EventScript_TateAndLizaReplayDefeated::
+	msgbox MossdeepCity_Gym_Text_TateAndLizaPostBattle, MSGBOX_DEFAULT
+	release
+	end
+
 MossdeepCity_Gym_EventScript_TateAndLizaDefeated::
+	@ pristine-emerald: a rematch after a gym reset (badge already held):
+	@ no badge, TM or story changes again (data/scripts/gym_reset.inc).
+	goto_if_set FLAG_BADGE07_GET, MossdeepCity_Gym_EventScript_TateAndLizaReplayDefeated
 	message MossdeepCity_Gym_Text_ReceivedMindBadge
 	waitmessage
 	call Common_EventScript_PlayGymBadgeFanfare
@@ -265,6 +273,16 @@ MossdeepCity_Gym_EventScript_GymGuide::
 
 MossdeepCity_Gym_EventScript_GymGuidePostVictory::
 	msgbox MossdeepCity_Gym_Text_GymGuidePostVictory, MSGBOX_DEFAULT
+	@ pristine-emerald: offer to start the challenge over (data/scripts/gym_reset.inc)
+	msgbox Text_GymResetAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, MossdeepCity_Gym_EventScript_GymGuideNoReset
+	setvar VAR_0x8008, 7
+	call Common_EventScript_ResetGymChallenge
+	warp MAP_MOSSDEEP_CITY_GYM, 6, 35
+	waitstate
+	end
+
+MossdeepCity_Gym_EventScript_GymGuideNoReset::
 	release
 	end
 

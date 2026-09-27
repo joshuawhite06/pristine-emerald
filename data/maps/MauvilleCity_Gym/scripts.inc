@@ -83,7 +83,15 @@ MauvilleCity_Gym_EventScript_Wattson::
 	release
 	end
 
+MauvilleCity_Gym_EventScript_WattsonReplayDefeated::
+	msgbox MauvilleCity_Gym_Text_WattsonPostBattle, MSGBOX_DEFAULT
+	release
+	end
+
 MauvilleCity_Gym_EventScript_WattsonDefeated::
+	@ pristine-emerald: a rematch after a gym reset (badge already held):
+	@ no badge, TM or story changes again (data/scripts/gym_reset.inc).
+	goto_if_set FLAG_BADGE03_GET, MauvilleCity_Gym_EventScript_WattsonReplayDefeated
 	message MauvilleCity_Gym_Text_ReceivedDynamoBadge
 	waitmessage
 	call Common_EventScript_PlayGymBadgeFanfare
@@ -231,6 +239,16 @@ MauvilleCity_Gym_EventScript_GymGuide::
 
 MauvilleCity_Gym_EventScript_GymGuidePostVictory::
 	msgbox MauvilleCity_Gym_Text_GymGuidePostVictory, MSGBOX_DEFAULT
+	@ pristine-emerald: offer to start the challenge over (data/scripts/gym_reset.inc)
+	msgbox Text_GymResetAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, MauvilleCity_Gym_EventScript_GymGuideNoReset
+	setvar VAR_0x8008, 3
+	call Common_EventScript_ResetGymChallenge
+	warp MAP_MAUVILLE_CITY_GYM, 4, 20
+	waitstate
+	end
+
+MauvilleCity_Gym_EventScript_GymGuideNoReset::
 	release
 	end
 

@@ -88,7 +88,15 @@ SootopolisCity_Gym_1F_EventScript_Juan::
 	release
 	end
 
+SootopolisCity_Gym_1F_EventScript_JuanReplayDefeated::
+	msgbox SootopolisCity_Gym_1F_Text_JuanPostBattle, MSGBOX_DEFAULT
+	release
+	end
+
 SootopolisCity_Gym_1F_EventScript_JuanDefeated::
+	@ pristine-emerald: a rematch after a gym reset (badge already held):
+	@ no badge, TM or story changes again (data/scripts/gym_reset.inc).
+	goto_if_set FLAG_BADGE08_GET, SootopolisCity_Gym_1F_EventScript_JuanReplayDefeated
 	message SootopolisCity_Gym_1F_Text_ReceivedRainBadge
 	waitmessage
 	call Common_EventScript_PlayGymBadgeFanfare
@@ -149,6 +157,16 @@ SootopolisCity_Gym_1F_EventScript_GymGuide::
 
 SootopolisCity_Gym_1F_EventScript_GymGuidePostVictory::
 	msgbox SootopolisCity_Gym_1F_Text_GymGuidePostVictory, MSGBOX_DEFAULT
+	@ pristine-emerald: offer to start the challenge over (data/scripts/gym_reset.inc)
+	msgbox Text_GymResetAsk, MSGBOX_YESNO
+	goto_if_eq VAR_RESULT, NO, SootopolisCity_Gym_1F_EventScript_GymGuideNoReset
+	setvar VAR_0x8008, 8
+	call Common_EventScript_ResetGymChallenge
+	warp MAP_SOOTOPOLIS_CITY_GYM_1F, 8, 25
+	waitstate
+	end
+
+SootopolisCity_Gym_1F_EventScript_GymGuideNoReset::
 	release
 	end
 

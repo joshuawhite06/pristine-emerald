@@ -927,6 +927,30 @@ Code: `src/tm_machine.c`, `data/scripts/tm_machine.inc`, `src/script_menu.c`,
 
 ---
 
+# 13c. Gym reset (added 2026-09-27)
+
+With a gym's badge, its gym guide (the man at the entrance) asks after his
+usual line: "Do you want to start this GYM challenge over?" YES clears that
+gym's trainers and its leader (the game's own gym trainer list from
+`set_gym_trainers.inc`, plus the leader) and warps the player to the gym's
+door, which reloads the map (positions, facing).
+
+- Kept: the badge, the TM, every story change, and the gym's solved puzzles
+  (decision: puzzles stay solved). Dewford stays lit and Petalburg's room doors
+  stay open, which in vanilla follow the trainers beaten.
+- Trainers battle again (prize money as usual). The leader battles with the
+  first-time team and pays prize money; the victory script then only says the
+  leader's usual post-battle line: no badge, no TM, no story changes. Norman,
+  whose battle depends on VAR_PETALBURG_GYM_STATE, gets the same through a
+  replay branch that leaves the state alone. Post-game Match Call rematches
+  work as in vanilla.
+- No new flags or vars. `data/scripts/gym_reset.inc` and the gym scripts.
+  Tests: `test/cases/test_gym_reset.py`.
+- Note: vanilla hides Petalburg's greeter once the Champion is beaten, so
+  Petalburg can only be reset before that (open question).
+
+---
+
 # 14. Out of Scope
 
 Do not add:
