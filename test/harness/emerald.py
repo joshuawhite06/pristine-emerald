@@ -207,6 +207,18 @@ class Emerald(Session):
             self._rom_bytes = self.rom.read_bytes()
         return self._rom_bytes[addr - 0x08000000 : addr - 0x08000000 + size]
 
+    def money(self):
+        key = self.u32(self.sb2_addr() + savefile.SB2_ENCRYPTION_KEY)
+        return self.u32(self.sb1_addr() + 0x490) ^ key
+
+    def all_flags(self):
+        """Every saved flag byte (SaveBlock1 flags)."""
+        return self.read(self.sb1_addr() + savefile.SB1_FLAGS, savefile.SB1_VARS - savefile.SB1_FLAGS)
+
+    def all_vars(self):
+        """Every saved var (0x4000-0x40FF)."""
+        return self.read(self.sb1_addr() + savefile.SB1_VARS, 0x100 * 2)
+
     def flag(self, flag_id):
         byte = self.u8(self.sb1_addr() + savefile.SB1_FLAGS + flag_id // 8)
         return bool(byte & (1 << (flag_id % 8)))
