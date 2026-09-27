@@ -131,6 +131,18 @@ class Emerald(Session):
     def multichoice_open(self):
         return self.task_active("Task_HandleMultichoiceInput")
 
+    def scroll_list_open(self):
+        return self.task_active("ScrollableMultichoice_ProcessInput")
+
+    def choose_from_list(self, index, max_frames=3000):
+        """Wait for a scrolling list (pressing A through text first) and pick
+        the item `index` places down from the top."""
+        self.advance_text_until(lambda s: s.scroll_list_open(), max_frames, "scrolling list")
+        self.run(10)
+        for _ in range(index):
+            self.press("DOWN", hold=2, wait=8)
+        self.press("A", hold=2, wait=10)
+
     def yes_no_open(self):
         return self.task_active("Task_HandleYesNoInput")
 
