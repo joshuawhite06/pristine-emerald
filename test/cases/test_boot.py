@@ -22,7 +22,7 @@ class BootFromSave(unittest.TestCase):
                 game = Emerald.from_save(path)
                 self.assertTrue(game.in_overworld())
                 group, num, _, _ = game.location()
-                self.assertEqual((group, num), sav.continue_warp, gamedata.map_name(group, num))
+                self.assertEqual((group, num), sav.resume_map, gamedata.map_name(group, num))
                 self.assertEqual([m.box.logical() for m in game.party()], [m.box.logical() for m in sav.party()])
                 self.assertTrue(all(m.checksum_ok for m in game.party()))
 

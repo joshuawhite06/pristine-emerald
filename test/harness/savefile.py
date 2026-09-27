@@ -39,6 +39,7 @@ SB1_PARTY = 0x238
 SB1_FLAGS = 0x1270
 SB1_VARS = 0x139C
 SB2_PLAYER_NAME = 0x00
+SB2_SPECIAL_SAVE_WARP_FLAGS = 0x09
 SB2_TRAINER_ID = 0x0A
 SB2_ENCRYPTION_KEY = 0xAC
 
@@ -167,6 +168,15 @@ class SaveFile:
         """(mapGroup, mapNum) that CONTINUE loads into."""
         group, num = struct.unpack_from("<bb", self.sb1, SB1_CONTINUE_WARP)
         return group, num
+
+    @property
+    def resume_map(self):
+        """(mapGroup, mapNum) that CONTINUE loads: the saved location, or the
+        continue warp when the save was made somewhere special (e.g. a link
+        room), as flagged by CONTINUE_GAME_WARP."""
+        if self.sb2[SB2_SPECIAL_SAVE_WARP_FLAGS] & 1:
+            return self.continue_warp
+        return self.location[:2]
 
     def party(self):
         count = self.sb1[SB1_PARTY_COUNT]
