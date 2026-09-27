@@ -544,3 +544,8 @@ gSpecials::
 	def_special ResetSelectedMonEVs
 	def_special GetSelectedMonAbilityChoice
 	def_special SwitchSelectedMonAbility
+	def_special IsSelectedMonSpinda
+	def_special BufferNatureChoice
+	def_special ChangeSelectedMonNature
+	def_special GetSelectedMonShiny
+	def_special ToggleSelectedMonShiny

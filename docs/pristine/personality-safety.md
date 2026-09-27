@@ -80,6 +80,14 @@ shiny PID), about 1/20 of the shiny PIDs. Measured in the emulator: a normal
 change finishes within a few frames; an impossible Unown request gives up in about 40
 frames.
 
+## In the game
+
+POKéMON SERVICES > CHANGE NATURE and TOGGLE SHINY (`data/scripts/pokemon_services.inc`,
+specials in `src/pokemon_services.c`). Spinda gets a YES/NO warning first
+(its spots will change). If the search fails, the player sees "This POKéMON
+can't be changed that way." and nothing is changed. Tests:
+`test/cases/test_pokemon_services.py`.
+
 ## Tests
 
 `test/cases/test_personality.py` runs the real game code in the test build

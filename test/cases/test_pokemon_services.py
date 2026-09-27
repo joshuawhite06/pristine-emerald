@@ -13,7 +13,7 @@ C = gamedata.const
 FIXTURE = "pc-front"
 
 PC_SERVICES = 2  # PC top menu: SOMEONE'S PC, <PLAYER>'s PC, POKéMON SERVICES, ...
-CHANGE_ABILITY, RESET_EVS, MOVE_REMINDER, MOVE_DELETER, CANCEL = range(5)
+CHANGE_NATURE, CHANGE_ABILITY, RESET_EVS, MOVE_REMINDER, MOVE_DELETER, TOGGLE_SHINY, CANCEL = range(7)
 
 
 class Services(unittest.TestCase):
@@ -74,6 +74,114 @@ class Services(unittest.TestCase):
         self.open_service(game, CANCEL)
         game.choose(3)  # LOG OFF (4th entry until the Hall of Fame appears)
         game.advance_text_until(lambda s: not s.field_controls_locked(), description="PC off")
+
+    # --- Change Nature --------------------------------------------------------
+
+    def assert_pid_change(self, before, after, nature, shiny):
+        """Only the PID changed, and it gives this nature and shininess with
+        the same gender; stats follow the new nature."""
+        b, a = before.box, after.box
+        self.assertEqual(a.logical(), b.logical())
+        self.assertTrue(after.checksum_ok)
+        self.assertEqual(gen3.NATURES[a.nature], nature)
+        self.assertEqual(a.shiny, shiny)
+        ratio = self.rom.species_info(a.species)["gender_ratio"]
+        self.assertEqual(gen3.gender(a.personality, ratio), gen3.gender(b.personality, ratio))
+        base = self.rom.species_info(a.species)["base_stats"]
+        self.assertEqual(after.stats, gen3.calc_stats(base, a.ivs, a.evs, after.level, a.nature))
+
+    def test_change_nature(self):
+        before = self.ralts()  # personality 0x5A3C1E07: SERIOUS, not shiny
+        self.assertEqual(gen3.NATURES[before.box.nature], "SERIOUS")
+        game = self.at_pc("nature", [before])
+        self.open_service(game, CHANGE_NATURE)
+        game.choose_party_mon(0)
+        game.choose_from_list(gen3.NATURES.index("ADAMANT"))
+        game.answer(yes=True)
+        self.back_at_services_menu(game)
+        self.assert_pid_change(before, game.party()[0], "ADAMANT", shiny=False)
+
+    def test_change_nature_to_a_neutral_one_at_the_end_of_the_list(self):
+        before = self.ralts()
+        game = self.at_pc("nature-quirky", [before])
+        self.open_service(game, CHANGE_NATURE)
+        game.choose_party_mon(0)
+        game.choose_from_list(gen3.NATURES.index("QUIRKY"))  # scrolls the list
+        game.answer(yes=True)
+        self.back_at_services_menu(game)
+        self.assert_pid_change(before, game.party()[0], "QUIRKY", shiny=False)
+
+    def test_change_nature_declined_or_same_changes_nothing(self):
+        before = self.ralts()
+        game = self.at_pc("nature-no", [before])
+        self.open_service(game, CHANGE_NATURE)
+        game.choose_party_mon(0)
+        game.choose_from_list(before.box.nature)  # it already has it: back to the list
+        game.choose_from_list(gen3.NATURES.index("TIMID"))
+        game.answer(yes=False)
+        self.back_at_services_menu(game)
+        self.assertEqual(game.party()[0].encode(), before.encode())
+
+    def test_change_nature_keeps_a_shiny_shiny(self):
+        ot = self.ralts().box.ot_id
+        t = (ot >> 16) ^ (ot & 0xFFFF)
+        before = self.ralts(personality=((t ^ 0x1E07) << 16) | 0x1E07)
+        self.assertTrue(before.box.shiny)
+        game = self.at_pc("nature-shiny", [before])
+        self.open_service(game, CHANGE_NATURE)
+        game.choose_party_mon(0)
+        game.choose_from_list(gen3.NATURES.index("MODEST"))
+        game.answer(yes=True)
+        self.back_at_services_menu(game)
+        self.assert_pid_change(before, game.party()[0], "MODEST", shiny=True)
+
+    def test_spinda_warning(self):
+        spinda = self.mon("SPECIES_SPINDA", 20, ["MOVE_TACKLE"], personality=0x1357_9BDF)
+        game = self.at_pc("spinda-no", [spinda])
+        self.open_service(game, CHANGE_NATURE)
+        game.choose_party_mon(0)
+        game.answer(yes=False)  # the warning
+        self.back_at_services_menu(game)
+        self.assertEqual(game.party()[0].encode(), spinda.encode())
+
+        game = self.at_pc("spinda-yes", [spinda])
+        self.open_service(game, TOGGLE_SHINY)
+        game.choose_party_mon(0)
+        game.answer(yes=True)  # the warning
+        game.answer(yes=True)  # make it shiny
+        self.back_at_services_menu(game)
+        self.assert_pid_change(spinda, game.party()[0], gen3.NATURES[spinda.box.nature], shiny=True)
+
+    # --- Toggle Shiny ---------------------------------------------------------
+
+    def test_toggle_shiny_on_then_off(self):
+        before = self.ralts()
+        game = self.at_pc("shiny", [before])
+        self.open_service(game, TOGGLE_SHINY)
+        game.choose_party_mon(0)
+        game.answer(yes=True)
+        self.back_at_services_menu(game)
+        shiny = game.party()[0]
+        nature = gen3.NATURES[before.box.nature]
+        self.assert_pid_change(before, shiny, nature, shiny=True)
+
+        game.choose(TOGGLE_SHINY)
+        game.choose_party_mon(0)
+        game.answer(yes=True)
+        self.back_at_services_menu(game)
+        self.assert_pid_change(shiny, game.party()[0], nature, shiny=False)
+
+    def test_impossible_change_shows_a_message_and_changes_nothing(self):
+        # Brute force: no shiny PID keeps this Unown's letter and MODEST nature.
+        unown = self.mon("SPECIES_UNOWN", 20, ["MOVE_HIDDEN_POWER"], personality=0x1CCE_E7D7)
+        unown.box.ot_id = 0x9920_64DD
+        unown = gen3.PartyMon.decode(unown.encode())
+        game = self.at_pc("shiny-impossible", [unown])
+        self.open_service(game, TOGGLE_SHINY)
+        game.choose_party_mon(0)
+        game.answer(yes=True)
+        self.back_at_services_menu(game)  # after "can't be changed that way"
+        self.assertEqual(game.party()[0].encode(), unown.encode())
 
     # --- Reset EVs -----------------------------------------------------------
 

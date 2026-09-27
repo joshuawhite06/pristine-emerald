@@ -940,7 +940,11 @@ Toggle Shiny
 > **Status (2026-09-27):** the centralized PID change and its tests are done
 > (`src/personality_tools.c`, `docs/pristine/personality-safety.md`,
 > `test/cases/test_personality.py`, mutation-tested with `test/mutants.py`).
-> Change Nature and Toggle Shiny are not in the menu yet.
+> Change Nature (a scrolling list of the 25 natures, then the stat effect and
+> YES/NO) and Toggle Shiny are in the POKéMON SERVICES menu, in the plan's
+> order. Spinda gets the plan's warning first; a change that's impossible
+> (some shiny Unown) says "This POKéMON can't be changed that way." and
+> leaves it untouched.
 
 ## Phase 5
 
