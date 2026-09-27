@@ -195,6 +195,18 @@ class Emerald(Session):
         """True while a script or menu holds the player (e.g. dialogue)."""
         return bool(self.u8(self.syms.addr("sLockFieldControls")))
 
+    def dex_owned(self, species):
+        """Whether the Pokédex has `species` as caught (SaveBlock2 pokedex.owned)."""
+        table = self.syms.addr("sSpeciesToNationalPokedexNum")
+        dex = struct.unpack("<H", self.rom_read(table + (species - 1) * 2, 2))[0] - 1
+        owned = self.u8(self.sb2_addr() + 0x18 + 0x10 + dex // 8)
+        return bool(owned & (1 << (dex % 8)))
+
+    def rom_read(self, addr, size):
+        if not hasattr(self, "_rom_bytes"):
+            self._rom_bytes = self.rom.read_bytes()
+        return self._rom_bytes[addr - 0x08000000 : addr - 0x08000000 + size]
+
     def flag(self, flag_id):
         byte = self.u8(self.sb1_addr() + savefile.SB1_FLAGS + flag_id // 8)
         return bool(byte & (1 << (flag_id % 8)))
