@@ -500,6 +500,7 @@ LittlerootTown_ProfessorBirchsLab_EventScript_GivePokedex::
 	msgbox LittlerootTown_ProfessorBirchsLab_Text_HeardYouBeatRivalTakePokedex, MSGBOX_DEFAULT
 	call LittlerootTown_ProfessorBirchsLab_EventScript_ReceivePokedex
 	msgbox LittlerootTown_ProfessorBirchsLab_Text_ExplainPokedex, MSGBOX_DEFAULT
+	call LittlerootTown_ProfessorBirchsLab_EventScript_GiveExpShare
 	closemessage
 	applywaitmovement LOCALID_BIRCHS_LAB_RIVAL, LittlerootTown_ProfessorBirchsLab_Movement_RivalApproachPlayer
 	applywaitmovement LOCALID_PLAYER, Common_Movement_WalkInPlaceFasterRight
@@ -513,6 +514,18 @@ LittlerootTown_ProfessorBirchsLab_EventScript_GivePokedex::
 	setvar VAR_LITTLEROOT_TOWN_STATE, 3
 	releaseall
 	end
+
+@ pristine-emerald: Birch also gives the Exp. Share (Mr. Stone gives Rare
+@ Candies instead). If the bag is full, the flag stays clear and Mr. Stone
+@ gives the Exp. Share as in vanilla.
+LittlerootTown_ProfessorBirchsLab_EventScript_GiveExpShare::
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_TakeThisToo, MSGBOX_DEFAULT
+	giveitem ITEM_EXP_SHARE
+	goto_if_eq VAR_RESULT, FALSE, LittlerootTown_ProfessorBirchsLab_EventScript_ExpShareNoRoom
+	setflag FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH
+	msgbox LittlerootTown_ProfessorBirchsLab_Text_ExplainExpShare, MSGBOX_DEFAULT
+LittlerootTown_ProfessorBirchsLab_EventScript_ExpShareNoRoom::
+	return
 
 LittlerootTown_ProfessorBirchsLab_EventScript_MayGivePokeBalls::
 	msgbox LittlerootTown_ProfessorBirchsLab_Text_MayGotPokedexTooTakeThese, MSGBOX_DEFAULT
@@ -749,6 +762,16 @@ LittlerootTown_ProfessorBirchsLab_Text_CountlessPokemonAwait:
 	.string "await you!\p"
 	.string "Argh, I'm getting the itch to get out\n"
 	.string "and do fieldwork again!$"
+
+LittlerootTown_ProfessorBirchsLab_Text_TakeThisToo:
+	.string "PROF. BIRCH: Oh, and one more thing.\n"
+	.string "Take this, too!$"
+
+LittlerootTown_ProfessorBirchsLab_Text_ExplainExpShare:
+	.string "PROF. BIRCH: Have a POKéMON hold the\n"
+	.string "EXP. SHARE, and it'll get a share of\l"
+	.string "the EXP. Points even if it doesn't\l"
+	.string "battle!$"
 
 LittlerootTown_ProfessorBirchsLab_Text_MayGotPokedexTooTakeThese:
 	.string "MAY: Oh, wow, {PLAYER}{KUN}!\n"

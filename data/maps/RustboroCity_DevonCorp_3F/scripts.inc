@@ -157,10 +157,23 @@ RustboroCity_DevonCorp_3F_EventScript_MrStone::
 
 RustboroCity_DevonCorp_3F_EventScript_GiveExpShare::
 	msgbox RustboroCity_DevonCorp_3F_Text_ThankYouForDeliveringLetter, MSGBOX_DEFAULT
+	goto_if_set FLAG_RECEIVED_EXP_SHARE_FROM_BIRCH, RustboroCity_DevonCorp_3F_EventScript_GiveRareCandies
 	giveitem ITEM_EXP_SHARE
 	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
 	setflag FLAG_RECEIVED_EXP_SHARE
 	msgbox RustboroCity_DevonCorp_3F_Text_ExplainExpShare, MSGBOX_DEFAULT
+	closemessage
+	applywaitmovement VAR_LAST_TALKED, Common_Movement_FaceOriginalDirection
+	release
+	end
+
+@ pristine-emerald: Birch already gave an Exp. Share; thank the player with
+@ Rare Candies. FLAG_RECEIVED_EXP_SHARE still marks the reward as given.
+RustboroCity_DevonCorp_3F_EventScript_GiveRareCandies::
+	giveitem ITEM_RARE_CANDY, 5
+	goto_if_eq VAR_RESULT, FALSE, Common_EventScript_ShowBagIsFull
+	setflag FLAG_RECEIVED_EXP_SHARE
+	msgbox RustboroCity_DevonCorp_3F_Text_ExplainRareCandy, MSGBOX_DEFAULT
 	closemessage
 	applywaitmovement VAR_LAST_TALKED, Common_Movement_FaceOriginalDirection
 	release
@@ -251,6 +264,12 @@ RustboroCity_DevonCorp_3F_Text_ExplainExpShare:
 	.string "actually battle.\p"
 	.string "I would say EXP. SHARE is quite useful\n"
 	.string "for raising weak POKéMON.$"
+
+RustboroCity_DevonCorp_3F_Text_ExplainRareCandy:
+	.string "MR. STONE: A RARE CANDY raises the\n"
+	.string "level of a POKéMON by one.\p"
+	.string "They should help your POKéMON\n"
+	.string "grow strong.$"
 
 RustboroCity_DevonCorp_3F_Text_NotFamiliarWithTrends:
 	.string "MR. STONE: Since my youth, I've immersed\n"
